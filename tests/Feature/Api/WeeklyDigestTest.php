@@ -3,11 +3,11 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\NotificationSetting;
 use App\Models\OutbreakAlert;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use App\Notifications\WeeklyDigest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -30,8 +30,8 @@ class WeeklyDigestTest extends TestCase
     public function test_digest_sends_inapp_and_mail_to_active_user_with_recent_scans(): void
     {
         $user = User::factory()->create();
-        FishScan::factory()->create(['user_id' => $user->id]);
-        UserPond::create(['user_id' => $user->id, 'name' => 'Kolam Uji']);
+        PlantScan::factory()->create(['user_id' => $user->id]);
+        UserGarden::create(['user_id' => $user->id, 'name' => 'Kebun Uji']);
 
         $this->artisan('digest:weekly')->assertSuccessful();
 
@@ -46,7 +46,7 @@ class WeeklyDigestTest extends TestCase
     public function test_digest_skips_users_without_weekly_activity(): void
     {
         $idle = User::factory()->create();
-        UserPond::create(['user_id' => $idle->id, 'name' => 'Kolam Diam']);
+        UserGarden::create(['user_id' => $idle->id, 'name' => 'Kebun Diam']);
 
         $this->artisan('digest:weekly')->assertSuccessful();
 
@@ -75,7 +75,7 @@ class WeeklyDigestTest extends TestCase
     public function test_digest_respects_via_email_preference(): void
     {
         $user = User::factory()->create();
-        FishScan::factory()->create(['user_id' => $user->id]);
+        PlantScan::factory()->create(['user_id' => $user->id]);
         NotificationSetting::create([
             'user_id' => $user->id,
             'type' => 'weekly',
@@ -93,7 +93,7 @@ class WeeklyDigestTest extends TestCase
     public function test_digest_respects_via_inapp_preference(): void
     {
         $user = User::factory()->create();
-        FishScan::factory()->create(['user_id' => $user->id]);
+        PlantScan::factory()->create(['user_id' => $user->id]);
         NotificationSetting::create([
             'user_id' => $user->id,
             'type' => 'weekly',
@@ -111,7 +111,7 @@ class WeeklyDigestTest extends TestCase
     public function test_digest_skips_inactive_users(): void
     {
         $user = User::factory()->create(['is_active' => false]);
-        FishScan::factory()->create(['user_id' => $user->id]);
+        PlantScan::factory()->create(['user_id' => $user->id]);
 
         $this->artisan('digest:weekly')->assertSuccessful();
 

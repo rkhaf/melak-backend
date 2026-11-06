@@ -9,14 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class FishScan extends Model
+class PlantScan extends Model
 {
     use HasFactory, HasUuids;
 
     protected $fillable = [
         'user_id',
-        'pond_id',
-        'fish_type',
+        'garden_id',
+        'plant_type',
         'symptoms_desc',
         'location_lat',
         'location_lng',
@@ -39,9 +39,9 @@ class FishScan extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function pond(): BelongsTo
+    public function garden(): BelongsTo
     {
-        return $this->belongsTo(UserPond::class, 'pond_id');
+        return $this->belongsTo(UserGarden::class, 'garden_id');
     }
 
     public function images(): HasMany

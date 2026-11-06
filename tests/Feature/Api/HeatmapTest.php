@@ -3,10 +3,10 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -26,12 +26,12 @@ class HeatmapTest extends TestCase
         User $user,
         Disease $disease,
         ?array $gps = null,
-        ?UserPond $pond = null,
+        ?UserGarden $garden = null,
         ?string $kecamatan = null,
     ): void {
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
-            'pond_id' => $pond?->id,
+            'garden_id' => $garden?->id,
             'status' => 'done',
             'location_lat' => $gps[0] ?? null,
             'location_lng' => $gps[1] ?? null,
@@ -82,17 +82,17 @@ class HeatmapTest extends TestCase
             ->assertJsonPath('data.0.cases', 1);
     }
 
-    public function test_heatmap_falls_back_to_pond_coordinates(): void
+    public function test_heatmap_falls_back_to_garden_coordinates(): void
     {
         $user = User::factory()->create(['province' => 'Jawa Barat']);
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.319895,
             'location_lng' => 108.000665,
         ]);
 
-        $this->caseScan($user, Disease::factory()->create(), pond: $pond);
+        $this->caseScan($user, Disease::factory()->create(), garden: $garden);
 
         $this->getJson('/api/map/heatmap?days=30')
             ->assertOk()
@@ -101,7 +101,7 @@ class HeatmapTest extends TestCase
 
     public function test_heatmap_skips_scans_without_any_coordinates(): void
     {
-        // Tanpa GPS dan tanpa kolam berkoordinat → tidak bisa ditempatkan di peta.
+        // Tanpa GPS dan tanpa kebun berkoordinat → tidak bisa ditempatkan di peta.
         $this->caseScan(User::factory()->create(), Disease::factory()->create());
 
         $this->getJson('/api/map/heatmap?days=30')

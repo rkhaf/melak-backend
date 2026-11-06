@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ForumFollow;
 use App\Models\ForumPost;
 use App\Models\ScanResult;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -45,15 +45,15 @@ class DashboardController extends Controller
 
     private function statCards(User $user): array
     {
-        $scanIds = FishScan::where('user_id', $user->id)->where('status', 'done')->select('id');
+        $scanIds = PlantScan::where('user_id', $user->id)->where('status', 'done')->select('id');
 
         return [
-            'total_scans' => FishScan::where('user_id', $user->id)->count(),
+            'total_scans' => PlantScan::where('user_id', $user->id)->count(),
             'diseases_detected' => ScanResult::whereIn('scan_id', $scanIds)
                 ->whereNotNull('disease_id')
                 ->distinct()
                 ->count('disease_id'),
-            'active_ponds' => UserPond::where('user_id', $user->id)->count(),
+            'active_gardens' => UserGarden::where('user_id', $user->id)->count(),
             'questions_answered' => ForumPost::where('user_id', $user->id)
                 ->where('type', 'question')
                 ->where('has_best_answer', true)
@@ -63,12 +63,12 @@ class DashboardController extends Controller
 
     private function recentScans(User $user): array
     {
-        return FishScan::with(['result.disease', 'images', 'pond:id,name'])
+        return PlantScan::with(['result.disease', 'images', 'garden:id,name'])
             ->where('user_id', $user->id)
             ->latest()
             ->take(5)
             ->get()
-            ->map(fn (FishScan $scan) => $this->scanSummary($scan))
+            ->map(fn (PlantScan $scan) => $this->scanSummary($scan))
             ->all();
     }
 
@@ -87,12 +87,12 @@ class DashboardController extends Controller
     {
         $start = now()->startOfDay()->subDays($days - 1);
 
-        $scans = FishScan::where('user_id', $user->id)
+        $scans = PlantScan::where('user_id', $user->id)
             ->where('status', 'done')
             ->where('created_at', '>=', $start)
             ->get(['id', 'created_at']);
 
-        $counts = $scans->countBy(fn (FishScan $scan) => $scan->created_at->toDateString());
+        $counts = $scans->countBy(fn (PlantScan $scan) => $scan->created_at->toDateString());
 
         $trend = [];
 
@@ -109,7 +109,7 @@ class DashboardController extends Controller
         $rows = ScanResult::query()
             ->whereIn('scan_id', fn ($q) => $q
                 ->select('id')
-                ->from('fish_scans')
+                ->from('plant_scans')
                 ->where('user_id', $user->id)
                 ->where('status', 'done')
                 ->where('created_at', '>=', now()->subDays(7)))
@@ -139,16 +139,16 @@ class DashboardController extends Controller
 
     private function activityFeed(User $user): array
     {
-        $scans = FishScan::with('result.disease')
+        $scans = PlantScan::with('result.disease')
             ->where('user_id', $user->id)
             ->latest()
             ->take(5)
             ->get()
-            ->map(fn (FishScan $scan) => [
+            ->map(fn (PlantScan $scan) => [
                 'type' => 'scan',
                 'title' => $scan->result?->disease?->name
                     ? 'Scan mendeteksi '.$scan->result->disease->name
-                    : 'Scan ikan baru',
+                    : 'Scan tanaman baru',
                 'created_at' => $scan->created_at?->toIso8601String(),
             ]);
 

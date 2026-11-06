@@ -18,6 +18,6 @@ class ScanImage extends Model
 
     public function scan(): BelongsTo
     {
-        return $this->belongsTo(FishScan::class, 'scan_id');
+        return $this->belongsTo(PlantScan::class, 'scan_id');
     }
 }

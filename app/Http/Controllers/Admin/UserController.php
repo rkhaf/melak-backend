@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
-            ->withCount('fishScans')
+            ->withCount('plantScans')
             ->when($request->filled('q'), function ($q) use ($request) {
                 $q->where(function ($q) use ($request) {
                     $q->where('name', 'like', "%{$request->q}%")
@@ -86,7 +86,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $user->loadCount('fishScans');
+        $user->loadCount('plantScans');
         $user->load('notificationSettings');
 
         return view('admin.users.edit', compact('user'));

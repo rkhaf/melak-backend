@@ -76,7 +76,7 @@ class MlProbe
      *   raw: ?array, normalized: ?array, disease: ?array, error: ?array
      * }
      */
-    public function predict(UploadedFile $image, ?string $fishType, bool $gradcam): array
+    public function predict(UploadedFile $image, ?string $plantType, bool $gradcam): array
     {
         $driver = (string) config('ngingu.ml.driver', 'fake');
 
@@ -92,7 +92,7 @@ class MlProbe
                 'filename' => $image->getClientOriginalName(),
                 'mime' => (string) ($image->getClientMimeType() ?: 'application/octet-stream'),
                 'size_bytes' => (int) $image->getSize(),
-                'fish_type' => $fishType !== null && trim($fishType) !== '' ? trim($fishType) : null,
+                'plant_type' => $plantType !== null && trim($plantType) !== '' ? trim($plantType) : null,
                 'gradcam' => $gradcam,
             ],
             'raw' => null,
@@ -149,10 +149,10 @@ class MlProbe
         $result['url'] = $baseUrl.'/predict';
 
         $fields = ['gradcam' => $gradcam ? 'true' : 'false'];
-        $fishType = $result['request']['fish_type'];
+        $plantType = $result['request']['plant_type'];
 
-        if ($fishType !== null) {
-            $fields['fish_type'] = $fishType;
+        if ($plantType !== null) {
+            $fields['plant_type'] = $plantType;
         }
 
         $binary = (string) file_get_contents($image->getRealPath());
@@ -281,7 +281,7 @@ class MlProbe
                 'severity' => null,
                 'hint' => 'Slug "'.$slug.'" tidak ditemukan di tabel diseases (atau belum dipublikasikan) — '
                     .'hasil scan akan tampil "Tidak diketahui". '
-                    .'Pastikan DiseaseSeeder sudah jalan, lalu php artisan ml:sync-label-map.',
+                    .'Pastikan PlantDiseaseSeeder sudah dijalankan, lalu jalankan php artisan ml:sync-label-map.',
             ];
         }
 

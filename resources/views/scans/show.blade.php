@@ -39,10 +39,10 @@
     <div class="bg-[#0F767E] rounded-2xl shadow-sm p-6 text-white">
         <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-full bg-white/15 flex items-center justify-center">
-                <i class="fa-solid fa-fish text-lg"></i>
+                <i class="fa-solid fa-plant text-lg"></i>
             </div>
             <div>
-                <h1 class="text-lg font-extrabold leading-tight">Melak — Hasil Scan Penyakit Ikan</h1>
+                <h1 class="text-lg font-extrabold leading-tight">Melak — Hasil Scan Penyakit Tanaman</h1>
                 <p class="text-xs text-white/80 mt-0.5">ID Scan: {{ $scan->id }}</p>
             </div>
         </div>
@@ -63,7 +63,7 @@
     @if ($result?->low_confidence_warning)
         <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-sm">
             <strong class="font-extrabold">Confidence rendah (&lt; 60%).</strong>
-            Hasil prediksi tidak pasti — periksa kembali kondisi ikan atau lakukan scan ulang dengan foto yang lebih jelas.
+            Hasil prediksi tidak pasti — periksa kembali kondisi tanaman atau lakukan scan ulang dengan foto yang lebih jelas.
         </div>
     @endif
 
@@ -122,12 +122,12 @@
                 <dd class="font-bold text-gray-800 text-right">{{ $scan->created_at?->format('d/m/Y H:i') }} WIB</dd>
             </div>
             <div class="flex justify-between gap-4 py-2.5">
-                <dt class="text-gray-500">Kolam / tambak</dt>
-                <dd class="font-bold text-gray-800 text-right">{{ $scan->pond?->name ?? '-' }}</dd>
+                <dt class="text-gray-500">Kebun / lahan</dt>
+                <dd class="font-bold text-gray-800 text-right">{{ $scan->garden?->name ?? '-' }}</dd>
             </div>
             <div class="flex justify-between gap-4 py-2.5">
-                <dt class="text-gray-500">Jenis ikan</dt>
-                <dd class="font-bold text-gray-800 text-right">{{ $scan->fish_type ?? '-' }}</dd>
+                <dt class="text-gray-500">Jenis tanaman</dt>
+                <dd class="font-bold text-gray-800 text-right">{{ $scan->plant_type ?? '-' }}</dd>
             </div>
             <div class="flex justify-between gap-4 py-2.5">
                 <dt class="text-gray-500">Deskripsi gejala</dt>
@@ -240,7 +240,7 @@
             Buka Melak
         </a>
         <p class="text-xs text-gray-400 mt-4 leading-relaxed">
-            Scan dan riwayat lengkap tersedia di aplikasi Melak. Konsultasikan hasil ini dengan penyuluh perikanan
+            Scan dan riwayat lengkap tersedia di aplikasi Melak. Konsultasikan hasil ini dengan penyuluh pertanian
             untuk penanganan lanjutan.
         </p>
     </div>

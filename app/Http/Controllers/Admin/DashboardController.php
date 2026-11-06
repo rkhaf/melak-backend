@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ForumPost;
 use App\Models\ForumReport;
 use App\Models\MlModel;
@@ -18,13 +18,13 @@ class DashboardController extends Controller
     {
         $today = now()->startOfDay();
 
-        $hasScan = Schema::hasTable('fish_scans');
+        $hasScan = Schema::hasTable('plant_scans');
         $hasForum = Schema::hasTable('forum_posts');
         $hasDisease = Schema::hasTable('diseases');
         $hasModels = Schema::hasTable('ml_models');
 
-        $scansToday = $hasScan ? FishScan::where('created_at', '>=', $today)->count() : 0;
-        $scansYesterday = $hasScan ? FishScan::where('created_at', '>=', $today->copy()->subDay())
+        $scansToday = $hasScan ? PlantScan::where('created_at', '>=', $today)->count() : 0;
+        $scansYesterday = $hasScan ? PlantScan::where('created_at', '>=', $today->copy()->subDay())
             ->where('created_at', '<', $today)->count() : 0;
 
         $stats = [
@@ -32,7 +32,7 @@ class DashboardController extends Controller
             'users_today' => User::where('created_at', '>=', $today)->count(),
             'scans_today' => $scansToday,
             'scans_today_pct' => $this->percentChange($scansYesterday, $scansToday),
-            'scans_total' => $hasScan ? FishScan::count() : 0,
+            'scans_total' => $hasScan ? PlantScan::count() : 0,
             'pending_posts' => $hasForum ? ForumPost::where('status', 'pending')->count() : 0,
             'reported_posts' => $hasForum ? ForumPost::whereHas('reports', fn ($q) => $q->where('status', 'pending'))->count() : 0,
             'total_posts' => $hasForum ? ForumPost::count() : 0,
@@ -48,9 +48,9 @@ class DashboardController extends Controller
         $topDiseases = [];
         if ($hasScan && $hasDisease) {
             $topDiseases = ScanResult::query()
-                ->join('fish_scans', 'fish_scans.id', '=', 'scan_results.scan_id')
+                ->join('plant_scans', 'plant_scans.id', '=', 'scan_results.scan_id')
                 ->join('diseases', 'diseases.id', '=', 'scan_results.disease_id')
-                ->where('fish_scans.created_at', '>=', now()->subDays(6)->startOfDay())
+                ->where('plant_scans.created_at', '>=', now()->subDays(6)->startOfDay())
                 ->selectRaw('diseases.id, diseases.name, diseases.slug, COUNT(*) as total')
                 ->groupBy('diseases.id', 'diseases.name', 'diseases.slug')
                 ->orderByDesc('total')
@@ -59,7 +59,7 @@ class DashboardController extends Controller
         }
 
         $trend = $hasScan
-            ? FishScan::selectRaw('DATE(created_at) as date, COUNT(*) as total')
+            ? PlantScan::selectRaw('DATE(created_at) as date, COUNT(*) as total')
                 ->where('created_at', '>=', now()->subDays(6)->startOfDay())
                 ->groupBy('date')->orderBy('date')
                 ->pluck('total', 'date')
@@ -92,8 +92,8 @@ class DashboardController extends Controller
         $stats = [
             'Total pengguna' => User::count(),
             'Pengguna baru hari ini' => User::where('created_at', '>=', $today)->count(),
-            'Scan hari ini' => FishScan::where('created_at', '>=', $today)->count(),
-            'Total scan' => FishScan::count(),
+            'Scan hari ini' => PlantScan::where('created_at', '>=', $today)->count(),
+            'Total scan' => PlantScan::count(),
             'Total post forum' => ForumPost::count(),
             'Post menunggu moderasi' => ForumPost::where('status', 'pending')->count(),
             'Laporan menunggu review' => ForumReport::where('status', 'pending')->count(),
@@ -102,9 +102,9 @@ class DashboardController extends Controller
         ];
 
         $topDiseases = ScanResult::query()
-            ->join('fish_scans', 'fish_scans.id', '=', 'scan_results.scan_id')
+            ->join('plant_scans', 'plant_scans.id', '=', 'scan_results.scan_id')
             ->join('diseases', 'diseases.id', '=', 'scan_results.disease_id')
-            ->where('fish_scans.created_at', '>=', now()->subDays(6)->startOfDay())
+            ->where('plant_scans.created_at', '>=', now()->subDays(6)->startOfDay())
             ->selectRaw('diseases.name as name, COUNT(*) as total')
             ->groupBy('diseases.name')
             ->orderByDesc('total')

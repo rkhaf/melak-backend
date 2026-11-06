@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\MapController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\NotificationSettingsController;
 use App\Http\Controllers\Api\OutbreakController;
-use App\Http\Controllers\Api\PondController;
+use App\Http\Controllers\Api\GardenController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ScanController;
 use App\Http\Controllers\Api\TipsController;
@@ -67,16 +67,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/forum/comments/{id}/best', [ForumCommentController::class, 'markBest']);
 });
 
-// §7 — Dashboard, kolam, profil & peta
+// §7 — Dashboard, kebun, profil & peta
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, '__invoke']);
 
-    Route::get('/ponds', [PondController::class, 'index']);
-    Route::get('/ponds/{id}', [PondController::class, 'show']);
-    Route::post('/ponds', [PondController::class, 'store']);
-    Route::put('/ponds/{id}', [PondController::class, 'update']);
-    Route::delete('/ponds/{id}', [PondController::class, 'destroy']);
-    Route::get('/ponds/{id}/health-report', [PondController::class, 'healthReport']);
+    Route::get('/gardens', [GardenController::class, 'index']);
+    Route::get('/gardens/{id}', [GardenController::class, 'show']);
+    Route::post('/gardens', [GardenController::class, 'store']);
+    Route::put('/gardens/{id}', [GardenController::class, 'update']);
+    Route::delete('/gardens/{id}', [GardenController::class, 'destroy']);
+    Route::get('/gardens/{id}/health-report', [GardenController::class, 'healthReport']);
 
     Route::get('/user', [ProfileController::class, 'me']);
     Route::put('/user/profile', [ProfileController::class, 'updateProfile']);

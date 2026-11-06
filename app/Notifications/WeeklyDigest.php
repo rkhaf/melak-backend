@@ -19,7 +19,7 @@ class WeeklyDigest extends Notification
     public function __construct(
         public readonly string $period = '',
         public readonly int $scans = 0,
-        public readonly int $ponds = 0,
+        public readonly int $gardens = 0,
         public readonly int $outbreaks = 0,
     ) {}
 
@@ -32,8 +32,8 @@ class WeeklyDigest extends Notification
     {
         $lines = [
             'Ringkasan 7 hari terakhir ('.$this->period.'):',
-            $this->scans.' scan ikan baru',
-            $this->ponds.' kolam terdaftar',
+            $this->scans.' scan tanaman baru',
+            $this->gardens.' kebun terdaftar',
         ];
 
         if ($this->outbreaks > 0) {

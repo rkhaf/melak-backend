@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\AppTip;
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\Notification;
 use App\Models\OutbreakAlert;
 use App\Models\ScanResult;
@@ -18,7 +18,7 @@ class TipsAndOutbreakTest extends TestCase
 
     private function scanWithDisease(User $user, Disease $disease): void
     {
-        $scan = FishScan::factory()->create(['user_id' => $user->id, 'status' => 'done']);
+        $scan = PlantScan::factory()->create(['user_id' => $user->id, 'status' => 'done']);
 
         ScanResult::create([
             'scan_id' => $scan->id,
@@ -36,8 +36,8 @@ class TipsAndOutbreakTest extends TestCase
             ->assertStatus(404)
             ->assertJsonPath('success', false);
 
-        AppTip::create(['content' => 'Ganti air kolam 20% tiap minggu.', 'category' => 'kualitas_air', 'is_active' => true]);
-        AppTip::create(['content' => 'Pakan berlebih memicu kembung.', 'category' => 'pakan', 'is_active' => true]);
+        AppTip::create(['content' => 'Periksa kelembapan tanah sebelum menyiram.', 'category' => 'tanah', 'is_active' => true]);
+        AppTip::create(['content' => 'Gunakan pupuk sesuai kebutuhan tanaman.', 'category' => 'nutrisi', 'is_active' => true]);
         AppTip::create(['content' => 'Tips nonaktif.', 'category' => 'umum', 'is_active' => false]);
 
         $first = $this->getJson('/api/tips/today');
@@ -64,14 +64,14 @@ class TipsAndOutbreakTest extends TestCase
         $this->getJson('/api/outbreaks')->assertStatus(401);
 
         $user = User::factory()->create();
-        $disease = Disease::factory()->create(['name' => 'White Spot (Ich)', 'slug' => 'white-spot-ich', 'severity' => 'berat']);
+        $disease = Disease::factory()->create(['name' => 'Bercak Bakteri pada Tomat', 'slug' => 'tomato-bacterial-spot', 'severity' => 'berat']);
 
         OutbreakAlert::create([
             'disease_id' => $disease->id,
             'province' => 'Jawa Barat',
             'cases_7d' => 9,
             'threshold' => 5,
-            'message' => '9 kasus White Spot (Ich) terlaporkan di Jawa Barat dalam 7 hari terakhir.',
+            'message' => '9 kasus Bercak Bakteri pada Tomat terlaporkan di Jawa Barat dalam 7 hari terakhir.',
             'status' => 'active',
         ]);
         OutbreakAlert::create([
@@ -91,14 +91,14 @@ class TipsAndOutbreakTest extends TestCase
             ->assertJsonPath('data.0.cases_7d', 9)
             ->assertJsonPath('data.0.threshold', 5)
             ->assertJsonPath('data.0.status', 'active')
-            ->assertJsonPath('data.0.disease.name', 'White Spot (Ich)')
+            ->assertJsonPath('data.0.disease.name', 'Bercak Bakteri pada Tomat')
             ->assertJsonPath('data.0.disease.severity', 'berat')
             ->assertJsonStructure(['data' => [['id', 'disease', 'province', 'cases_7d', 'threshold', 'message', 'status', 'created_at']]]);
     }
 
     public function test_aggregate_command_creates_alerts_and_notifies_province_users(): void
     {
-        $disease = Disease::factory()->create(['name' => 'Columnaris', 'slug' => 'columnaris', 'severity' => 'sedang']);
+        $disease = Disease::factory()->create(['name' => 'Karat Daun Jagung', 'slug' => 'karat-daun-jagung', 'severity' => 'sedang']);
 
         $provinceUsers = User::factory()->count(5)->create(['province' => 'Jawa Barat']);
         $outsider = User::factory()->create(['province' => 'Sumatera Utara']);
@@ -115,7 +115,7 @@ class TipsAndOutbreakTest extends TestCase
         $this->assertSame('active', $alert->status);
         $this->assertSame(5, (int) $alert->cases_7d);
         $this->assertSame(5, (int) $alert->threshold);
-        $this->assertStringContainsString('Columnaris', $alert->message);
+        $this->assertStringContainsString('Karat Daun Jagung', $alert->message);
 
         $this->assertDatabaseHas('notifications', ['type' => 'outbreak']);
         $this->assertSame(
@@ -155,12 +155,12 @@ class TipsAndOutbreakTest extends TestCase
 
     public function test_aggregate_ignores_old_and_failed_scans(): void
     {
-        $disease = Disease::factory()->create(['name' => 'Aeromonas', 'slug' => 'aeromonas']);
+        $disease = Disease::factory()->create(['name' => 'Hawar Daun Jagung', 'slug' => 'hawar-jagung']);
 
         $users = User::factory()->count(6)->create(['province' => 'Jawa Tengah']);
 
         foreach ($users as $user) {
-            $scan = FishScan::factory()->failed()->create(['user_id' => $user->id]);
+            $scan = PlantScan::factory()->failed()->create(['user_id' => $user->id]);
             ScanResult::create([
                 'scan_id' => $scan->id,
                 'disease_id' => $disease->id,
@@ -173,7 +173,7 @@ class TipsAndOutbreakTest extends TestCase
 
         $old = User::factory()->create(['province' => 'Jawa Tengah']);
         $this->scanWithDisease($old, $disease);
-        FishScan::where('user_id', $old->id)->toBase()->update(['created_at' => now()->subDays(30)]);
+        PlantScan::where('user_id', $old->id)->toBase()->update(['created_at' => now()->subDays(30)]);
 
         $this->artisan('outbreaks:aggregate', ['--threshold' => 5])->assertSuccessful();
 

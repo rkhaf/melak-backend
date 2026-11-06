@@ -25,18 +25,18 @@ class ProfileTest extends TestCase
     public function test_me_returns_own_profile(): void
     {
         $user = User::factory()->create([
-            'username' => 'petani_lele',
-            'bio' => 'Petambak pemula',
+            'username' => 'petani_tomat',
+            'bio' => 'Petani pemula',
             'province' => 'Jawa Barat',
         ]);
 
         $this->actingAs($user)->getJson('/api/user')
             ->assertOk()
-            ->assertJsonPath('data.username', 'petani_lele')
-            ->assertJsonPath('data.bio', 'Petambak pemula')
+            ->assertJsonPath('data.username', 'petani_tomat')
+            ->assertJsonPath('data.bio', 'Petani pemula')
             ->assertJsonPath('data.province', 'Jawa Barat')
             ->assertJsonPath('data.reputation_level', 'Pemula')
-            ->assertJsonStructure(['data' => ['id', 'name', 'username', 'email', 'avatar_url', 'bio', 'province', 'fish_types', 'reputation_points', 'reputation_level', 'role']]);
+            ->assertJsonStructure(['data' => ['id', 'name', 'username', 'email', 'avatar_url', 'bio', 'province', 'plant_types', 'reputation_points', 'reputation_level', 'role']]);
     }
 
     public function test_update_profile_updates_fields(): void
@@ -45,14 +45,14 @@ class ProfileTest extends TestCase
 
         $this->actingAs($user)->putJson('/api/user/profile', [
             'name' => 'Budi Santoso',
-            'bio' => 'Fokus budidaya lele',
+            'bio' => 'Fokus budidaya tomat',
             'province' => 'Jawa Tengah',
-            'fish_types' => ['Lele', 'Nila'],
+            'plant_types' => ['Tomat', 'Jagung'],
         ])
             ->assertOk()
             ->assertJsonPath('data.name', 'Budi Santoso')
-            ->assertJsonPath('data.bio', 'Fokus budidaya lele')
-            ->assertJsonPath('data.fish_types.0', 'Lele');
+            ->assertJsonPath('data.bio', 'Fokus budidaya tomat')
+            ->assertJsonPath('data.plant_types.0', 'Tomat');
 
         $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'Budi Santoso', 'province' => 'Jawa Tengah']);
 
@@ -88,7 +88,7 @@ class ProfileTest extends TestCase
 
     public function test_public_profile_returns_counts_and_badges(): void
     {
-        $user = User::factory()->create(['bio' => 'Petambak', 'reputation_points' => 60, 'reputation_level' => 'Aktif']);
+        $user = User::factory()->create(['bio' => 'Petani', 'reputation_points' => 60, 'reputation_level' => 'Aktif']);
         User::whereKey($user->id)->toBase()->update(['created_at' => now()->subYear()]);
 
         ForumPost::factory()->count(2)->create(['user_id' => $user->id, 'status' => 'published']);
@@ -99,7 +99,7 @@ class ProfileTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.name', $user->name)
-            ->assertJsonPath('data.bio', 'Petambak')
+            ->assertJsonPath('data.bio', 'Petani')
             ->assertJsonPath('data.reputation_points', 60)
             ->assertJsonPath('data.reputation_level', 'Aktif')
             ->assertJsonPath('data.posts_count', 2)

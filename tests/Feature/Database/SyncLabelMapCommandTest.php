@@ -3,7 +3,7 @@
 namespace Tests\Feature\Database;
 
 use App\Models\Disease;
-use Database\Seeders\DiseaseSeeder;
+use Database\Seeders\PlantDiseaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -39,7 +39,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_writes_disease_ids_into_label_map(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
         $this->writeLabelMap($this->labelsWith(null));
 
         $this->artisan('ml:sync-label-map')
@@ -60,7 +60,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_check_passes_when_already_synced(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
 
         $labels = $this->labelsWith(null);
 
@@ -77,7 +77,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_check_fails_when_disease_id_is_null_or_wrong(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
         $this->writeLabelMap($this->labelsWith(null));
 
         $this->artisan('ml:sync-label-map --check')
@@ -93,7 +93,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_check_fails_when_name_or_severity_drifts_from_database(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
 
         $labels = $this->labelsWith(null);
 
@@ -111,7 +111,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_fails_when_label_map_contains_unknown_slug(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
 
         $labels = $this->labelsWith(null);
         $labels[2]['slug'] = 'slug-tidak-ada';
@@ -125,7 +125,7 @@ class SyncLabelMapCommandTest extends TestCase
 
     public function test_fails_when_label_map_file_is_missing(): void
     {
-        $this->seed(DiseaseSeeder::class);
+        $this->seed(PlantDiseaseSeeder::class);
         config(['ngingu.ml.label_map' => $this->path.'.tidak-ada']);
 
         $this->artisan('ml:sync-label-map')

@@ -7,8 +7,8 @@ use App\Models\Faq;
 class FaqCrudTest extends AdminTestCase
 {
     private array $validData = [
-        'question' => 'Apa yang harus dilakukan saat ikan sakit?',
-        'answer' => 'Segera karantina ikan yang sakit dan konsultasikan gejalanya di forum Melak.',
+        'question' => 'Apa yang harus dilakukan saat tanaman sakit?',
+        'answer' => 'Segera periksa tanaman yang sakit dan konsultasikan gejalanya di forum Melak.',
         'is_active' => true,
     ];
 
@@ -20,7 +20,7 @@ class FaqCrudTest extends AdminTestCase
 
         $this->get(route('admin.faqs.index'))
             ->assertOk()
-            ->assertSee('Apa yang harus dilakukan saat ikan sakit?');
+            ->assertSee('Apa yang harus dilakukan saat tanaman sakit?');
     }
 
     public function test_admin_can_view_create_and_edit_pages(): void
@@ -44,7 +44,7 @@ class FaqCrudTest extends AdminTestCase
             ->assertRedirect(route('admin.faqs.index'))
             ->assertSessionHas('success');
 
-        $this->assertDatabaseHas('faqs', ['question' => 'Apa yang harus dilakukan saat ikan sakit?']);
+        $this->assertDatabaseHas('faqs', ['question' => 'Apa yang harus dilakukan saat tanaman sakit?']);
     }
 
     public function test_store_faq_requires_question_and_answer(): void

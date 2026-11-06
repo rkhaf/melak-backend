@@ -51,8 +51,8 @@ class HelpSeeder extends Seeder
 
         Faq::insert([
             [
-                'question' => 'Bagaimana cara AI Melak mendeteksi penyakit ikan?',
-                'answer' => 'Melak menggunakan model Convolutional Neural Network (CNN) berbasis Vision AI yang dilatih dengan ribuan dataset klinis penyakit ikan air tawar di Indonesia. Anda cukup memotret ikan yang bergejala sakit, lalu sistem menganalisis lesi, warna luka, bintik, dan kondisi sirip dalam hitungan detik.',
+                'question' => 'Bagaimana cara AI Melak mendeteksi penyakit tanaman?',
+                'answer' => 'Melak menggunakan model Vision AI untuk mengenali pola gejala pada tanaman. Potret bagian tanaman yang menunjukkan gejala; sistem akan menganalisis pola bercak, perubahan warna, dan kerusakan yang terlihat.',
                 'sort_order' => 1,
                 'is_active' => true,
                 'created_at' => now(),
@@ -60,15 +60,15 @@ class HelpSeeder extends Seeder
             ],
             [
                 'question' => 'Apakah aplikasi Melak dapat digunakan secara gratis?',
-                'answer' => 'Ya! Melak dapat diunduh dan digunakan secara gratis oleh seluruh pembudidaya ikan, pemilik tambak, dan akademisi perikanan. Fitur diagnosis dasar, ensiklopedia penyakit, dan forum komunitas terbuka untuk semua pengguna.',
+                'answer' => 'Ya! Melak dapat diunduh dan digunakan secara gratis oleh petani, pemilik kebun, dan akademisi. Fitur diagnosis dasar, ensiklopedia penyakit, dan forum komunitas terbuka untuk semua pengguna.',
                 'sort_order' => 2,
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'question' => 'Jenis ikan apa saja yang didukung oleh sistem scan Melak?',
-                'answer' => 'Saat ini Melak dioptimalkan untuk komoditas utama air tawar nasional: Ikan Lele, Ikan Nila, Ikan Gurame, Ikan Patin, dan Ikan Mas. Model ML kami terus diperbarui dengan tambahan spesies lain.',
+                'question' => 'Jenis tanaman apa saja yang didukung oleh sistem scan Melak?',
+                'answer' => 'Klasifikasi tanaman yang tersedia mencakup tomat, jagung, paprika, dan cabai. Cakupan dapat berbeda sesuai model klasifikasi yang terhubung.',
                 'sort_order' => 3,
                 'is_active' => true,
                 'created_at' => now(),
@@ -76,7 +76,7 @@ class HelpSeeder extends Seeder
             ],
             [
                 'question' => 'Bagaimana jika hasil scan memiliki tingkat kepastian (confidence) rendah?',
-                'answer' => 'Jika foto kurang fokus, buram, atau penyakit tidak umum, Melak memberi peringatan confidence score rendah dan menyediakan tombol satu-klik "Tanya Komunitas". Foto dan gejala ikan Anda otomatis diformat ke forum agar dibantu sesama pembudidaya dan ahli.',
+                'answer' => 'Jika foto kurang fokus atau gejala tidak dikenali, Melak memberi peringatan tingkat keyakinan rendah. Periksa tanaman secara langsung dan konsultasikan hasilnya dengan penyuluh atau komunitas.',
                 'sort_order' => 4,
                 'is_active' => true,
                 'created_at' => now(),
@@ -92,7 +92,7 @@ class HelpSeeder extends Seeder
             ],
             [
                 'question' => 'Apa saja fitur lain di dalam aplikasi Melak?',
-                'answer' => 'Selain scan penyakit, Melak menyediakan ensiklopedia penyakit ikan lengkap, forum komunitas tambak, peta sebaran wabah per provinsi, manajemen kolam dengan skor kesehatan, notifikasi pintar, dan tips harian budidaya.',
+                'answer' => 'Selain klasifikasi tanaman, Melak menyediakan ensiklopedia penyakit, forum komunitas, peta sebaran, manajemen kebun, notifikasi, dan tips harian budidaya.',
                 'sort_order' => 6,
                 'is_active' => true,
                 'created_at' => now(),

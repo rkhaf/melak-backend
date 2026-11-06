@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use App\Support\Reputation;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -28,9 +28,9 @@ class UserSeeder extends Seeder
             'role' => 'superadmin',
             'province' => 'DKI Jakarta',
             'bio' => 'Akun superadmin untuk mengelola panel admin Melak.',
-            'fish_types' => ['Lele', 'Nila'],
+            'plant_types' => ['Tomat', 'Jagung'],
             'reputation_points' => 0,
-            'ponds' => [],
+            'gardens' => [],
         ],
         [
             'name' => 'Melak Admin',
@@ -38,10 +38,10 @@ class UserSeeder extends Seeder
             'email' => 'admin@melak.id',
             'role' => 'admin',
             'province' => 'Jawa Barat',
-            'bio' => 'Moderator forum dan kurator artikel penyakit ikan.',
-            'fish_types' => ['Nila', 'Gurame'],
+            'bio' => 'Moderator forum dan kurator artikel penyakit tanaman.',
+            'plant_types' => ['Cabai', 'Tomat'],
             'reputation_points' => 0,
-            'ponds' => [],
+            'gardens' => [],
         ],
         [
             'name' => 'Budi Santoso',
@@ -49,17 +49,17 @@ class UserSeeder extends Seeder
             'email' => 'budi@melak.id',
             'role' => 'user',
             'province' => 'Jawa Barat',
-            'bio' => 'Petambak lele di Karawang, sudah 6 tahun menekuni budidaya air tawar.',
-            'fish_types' => ['Lele', 'Patin'],
+            'bio' => 'Petani tomat dan jagung di Karawang, sudah 6 tahun menekuni budidaya tanaman.',
+            'plant_types' => ['Tomat', 'Jagung'],
             'reputation_points' => 320,
-            'ponds' => [
+            'gardens' => [
                 [
-                    'name' => 'Kolam Lele Karawang',
-                    'description' => 'Kolam beton 6 kavling untuk pembesaran lele.',
+                    'name' => 'Kebun Tomat Karawang',
+                    'description' => 'Lahan sayur seluas 240 m² dengan tanaman tomat dan jagung.',
                     'location_label' => 'Karawang, Jawa Barat',
                     'area_m2' => 240.0,
-                    'capacity' => 8000,
-                    'fish_types' => ['Lele'],
+                    'capacity' => 500,
+                    'plant_types' => ['Tomat', 'Jagung'],
                     'health_score' => 92,
                 ],
             ],
@@ -70,17 +70,17 @@ class UserSeeder extends Seeder
             'email' => 'sari@melak.id',
             'role' => 'user',
             'province' => 'Jawa Tengah',
-            'bio' => 'Budidaya nila dan gurame di kolam tanah, fokus pada kesehatan air.',
-            'fish_types' => ['Nila', 'Gurame', 'Mas'],
+            'bio' => 'Budidaya cabai dan tomat di lahan terbuka, fokus pada kesehatan tanaman.',
+            'plant_types' => ['Cabai', 'Tomat', 'Paprika'],
             'reputation_points' => 80,
-            'ponds' => [
+            'gardens' => [
                 [
-                    'name' => 'Kolam Nila Selatan',
-                    'description' => 'Kolam tanah 1.200 m² untuk pembesaran nila merah.',
+                    'name' => 'Kebun Cabai Selatan',
+                    'description' => 'Lahan tanah 1.200 m² untuk budidaya cabai dan tomat.',
                     'location_label' => 'Wonogiri, Jawa Tengah',
                     'area_m2' => 1200.0,
-                    'capacity' => 15000,
-                    'fish_types' => ['Nila'],
+                    'capacity' => 2400,
+                    'plant_types' => ['Cabai', 'Tomat'],
                     'health_score' => 78,
                 ],
             ],
@@ -91,17 +91,17 @@ class UserSeeder extends Seeder
             'email' => 'joko@melak.id',
             'role' => 'user',
             'province' => 'Jawa Timur',
-            'bio' => 'Pemula yang baru mulai beternak udang vaname.',
-            'fish_types' => ['Udang Vaname'],
+            'bio' => 'Pemula yang baru mulai menanam sayuran di lahan rumah.',
+            'plant_types' => ['Jagung', 'Cabai'],
             'reputation_points' => 0,
-            'ponds' => [
+            'gardens' => [
                 [
-                    'name' => 'Tambak Vaname Situbondo',
-                    'description' => 'Tambak pendederan udang vaname musim pertama.',
+                    'name' => 'Kebun Sayur Situbondo',
+                    'description' => 'Kebun sayur rumahan untuk jagung dan cabai.',
                     'location_label' => 'Situbondo, Jawa Timur',
                     'area_m2' => 800.0,
-                    'capacity' => 60000,
-                    'fish_types' => ['Udang Vaname'],
+                    'capacity' => 300,
+                    'plant_types' => ['Jagung', 'Cabai'],
                     'health_score' => 65,
                 ],
             ],
@@ -113,8 +113,8 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         foreach (self::USERS as $data) {
-            $ponds = $data['ponds'];
-            unset($data['ponds']);
+            $gardens = $data['gardens'];
+            unset($data['gardens']);
 
             $user = User::query()->firstOrNew(['email' => $data['email']]);
             $user->fill($data + ['is_active' => true, 'reputation_level' => 'Pemula']);
@@ -128,19 +128,19 @@ class UserSeeder extends Seeder
             $user->reputation_level = Reputation::levelFor((int) $user->reputation_points);
             $user->save();
 
-            $this->seedPonds($user, $ponds);
+            $this->seedGardens($user, $gardens);
         }
 
         $this->command?->info(sprintf('%d akun demo siap (password: %s).', count(self::USERS), self::SEED_PASSWORD));
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $ponds
+     * @param  array<int, array<string, mixed>>  $gardens
      */
-    private function seedPonds(User $user, array $ponds): void
+    private function seedGardens(User $user, array $gardens): void
     {
-        foreach ($ponds as $data) {
-            UserPond::query()->firstOrCreate(
+        foreach ($gardens as $data) {
+            UserGarden::query()->firstOrCreate(
                 ['user_id' => $user->id, 'name' => $data['name']],
                 $data + ['user_id' => $user->id],
             );

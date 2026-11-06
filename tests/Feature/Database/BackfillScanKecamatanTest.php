@@ -3,10 +3,10 @@
 namespace Tests\Feature\Database;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,11 +18,11 @@ class BackfillScanKecamatanTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function oldScan(array $attributes = []): FishScan
+    private function oldScan(array $attributes = []): PlantScan
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $scan = FishScan::factory()->create(array_merge([
+        $scan = PlantScan::factory()->create(array_merge([
             'user_id' => $user->id,
             'status' => 'done',
             'kecamatan' => null,
@@ -40,7 +40,7 @@ class BackfillScanKecamatanTest extends TestCase
         return $scan;
     }
 
-    public function test_backfills_from_scan_gps_pond_coordinates_and_keeps_unknown_null(): void
+    public function test_backfills_from_scan_gps_garden_coordinates_and_keeps_unknown_null(): void
     {
         $withGps = $this->oldScan([
             'location_lat' => -6.445695,
@@ -48,13 +48,13 @@ class BackfillScanKecamatanTest extends TestCase
         ]);
 
         $user = User::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $withPond = $this->oldScan(['user_id' => $user->id, 'pond_id' => $pond->id]);
+        $withGarden = $this->oldScan(['user_id' => $user->id, 'garden_id' => $garden->id]);
 
         $noCoords = $this->oldScan();
 
@@ -68,7 +68,7 @@ class BackfillScanKecamatanTest extends TestCase
             ->assertExitCode(0);
 
         $this->assertSame('Haurgeulis', $withGps->fresh()->kecamatan);
-        $this->assertSame('Jatibarang', $withPond->fresh()->kecamatan);
+        $this->assertSame('Jatibarang', $withGarden->fresh()->kecamatan);
         $this->assertNull($noCoords->fresh()->kecamatan);
         $this->assertNull($outside->fresh()->kecamatan);
     }
@@ -91,7 +91,7 @@ class BackfillScanKecamatanTest extends TestCase
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
             'status' => 'done',
             'location_lat' => -6.445695,

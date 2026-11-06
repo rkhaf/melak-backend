@@ -77,7 +77,7 @@
                         <td class="px-5 py-4">
                             <span class="text-[11px] {{ $role['text'] }} {{ $role['bg'] }} border {{ $role['border'] }} px-2.5 py-1 rounded font-bold uppercase">{{ $role['label'] }}</span>
                         </td>
-                        <td class="px-5 py-4 text-gray-600">{{ $user->fish_scans_count }}</td>
+                        <td class="px-5 py-4 text-gray-600">{{ $user->plant_scans_count }}</td>
                         <td class="px-5 py-4 text-gray-400 text-xs">{{ $user->created_at?->format('d M Y') }}</td>
                         <td class="px-5 py-4">
                             @if($user->id === auth()->id())

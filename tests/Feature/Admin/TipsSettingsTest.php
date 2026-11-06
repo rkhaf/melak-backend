@@ -12,20 +12,20 @@ class TipsSettingsTest extends AdminTestCase
         $admin = $this->actingAsAdmin();
 
         $this->post(route('admin.tips.store'), [
-            'content' => 'Ganti air kolam 20% setiap minggu.',
-            'category' => 'kualitas_air',
+            'content' => 'Periksa kelembapan tanah sebelum menyiram.',
+            'category' => 'tanah',
             'is_published' => null,
             'published_on' => now()->toDateString(),
             'is_active' => 1,
         ])->assertRedirect(route('admin.tips.index'));
 
-        $tip = AppTip::where('content', 'Ganti air kolam 20% setiap minggu.')->firstOrFail();
+        $tip = AppTip::where('content', 'Periksa kelembapan tanah sebelum menyiram.')->firstOrFail();
         $this->assertTrue($tip->is_active);
         $this->assertSame(now()->toDateString(), $tip->published_on->toDateString());
 
         $this->assertDatabaseHas('audit_logs', ['action' => 'tip.created', 'model_id' => $tip->id]);
 
-        $this->get(route('admin.tips.index'))->assertOk()->assertSee('Ganti air kolam 20%');
+        $this->get(route('admin.tips.index'))->assertOk()->assertSee('Periksa kelembapan tanah');
 
         $this->post(route('admin.tips.toggle', $tip))->assertRedirect();
         $this->assertFalse($tip->fresh()->is_active);
@@ -33,13 +33,13 @@ class TipsSettingsTest extends AdminTestCase
 
         $this->put(route('admin.tips.update', $tip), [
             'content' => 'Tips yang sudah diperbarui.',
-            'category' => 'pakan',
+            'category' => 'pemupukan',
             'is_active' => 1,
         ])->assertRedirect(route('admin.tips.index'));
 
         $tip->refresh();
         $this->assertSame('Tips yang sudah diperbarui.', $tip->content);
-        $this->assertSame('pakan', $tip->category);
+        $this->assertSame('pemupukan', $tip->category);
         $this->assertTrue($tip->is_active);
         $this->assertDatabaseHas('audit_logs', ['action' => 'tip.updated', 'model_id' => $tip->id]);
 
@@ -71,13 +71,13 @@ class TipsSettingsTest extends AdminTestCase
 
         $this->post(route('admin.settings.update'), [
             'values' => [
-                'app.name' => 'Melak Fish Health',
+                'app.name' => 'Melak Plant Health',
                 'outbreak.threshold' => '8',
-                'unknown.key' => 'harus diabaikan',
+                'unknown.key' => 'harus dibatalkan',
             ],
         ])->assertRedirect(route('admin.settings.index'));
 
-        $this->assertDatabaseHas('app_settings', ['key' => 'app.name', 'value' => 'Melak Fish Health']);
+        $this->assertDatabaseHas('app_settings', ['key' => 'app.name', 'value' => 'Melak Plant Health']);
         $this->assertDatabaseHas('app_settings', ['key' => 'outbreak.threshold', 'value' => '8']);
         $this->assertDatabaseMissing('app_settings', ['key' => 'unknown.key']);
 

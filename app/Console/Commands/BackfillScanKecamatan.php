@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\FishScan;
-use App\Models\UserPond;
+use App\Models\PlantScan;
+use App\Models\UserGarden;
 use App\Support\KecamatanResolver;
 use Illuminate\Console\Command;
 
 /**
- * Isi kolom fish_scans.kecamatan untuk data lama (peta sebaran per kecamatan).
+ * Isi kolom plant_scans.kecamatan untuk data lama (peta sebaran per kecamatan).
  *
  * Pemetaan dilakukan saat scan dibuat; command ini menutup scan yang sudah ada
  * sebelum kolom kecamatan tersedia. Titik tanpa koordinat atau di luar polygon
@@ -18,28 +18,28 @@ class BackfillScanKecamatan extends Command
 {
     protected $signature = 'scan:backfill-kecamatan {--dry-run : Hitung tanpa menyimpan perubahan}';
 
-    protected $description = 'Isi fish_scans.kecamatan dari koordinat GPS scan (fallback koordinat kolam)';
+    protected $description = 'Isi plant_scans.kecamatan dari koordinat GPS scan (fallback koordinat kebun)';
 
     public function handle(KecamatanResolver $resolver): int
     {
         $dry = (bool) $this->option('dry-run');
-        $ponds = null;
+        $gardens = null;
         $updated = 0;
         $skipped = 0;
 
         // chunkById mengurutkan sendiri berdasarkan id — jangan tambah orderBy.
-        FishScan::query()
+        PlantScan::query()
             ->whereNull('kecamatan')
-            ->chunkById(200, function ($scans) use ($resolver, $dry, &$updated, &$skipped, &$ponds) {
+            ->chunkById(200, function ($scans) use ($resolver, $dry, &$updated, &$skipped, &$gardens) {
                 foreach ($scans as $scan) {
                     $lat = $scan->location_lat;
                     $lng = $scan->location_lng;
 
-                    if ($lat === null && $lng === null && $scan->pond_id !== null) {
-                        $ponds ??= UserPond::query()->whereIn('id', $scans->pluck('pond_id'))->get()->keyBy('id');
-                        $pond = $ponds->get($scan->pond_id);
-                        $lat = $pond?->location_lat;
-                        $lng = $pond?->location_lng;
+                    if ($lat === null && $lng === null && $scan->garden_id !== null) {
+                        $gardens ??= UserGarden::query()->whereIn('id', $scans->pluck('garden_id'))->get()->keyBy('id');
+                        $garden = $gardens->get($scan->garden_id);
+                        $lat = $garden?->location_lat;
+                        $lng = $garden?->location_lng;
                     }
 
                     $kecamatan = $resolver->resolve(
@@ -55,7 +55,7 @@ class BackfillScanKecamatan extends Command
                     $updated++;
 
                     if (! $dry) {
-                        FishScan::whereKey($scan->id)->toBase()->update(['kecamatan' => $kecamatan]);
+                        PlantScan::whereKey($scan->id)->toBase()->update(['kecamatan' => $kecamatan]);
                     }
                 }
             });

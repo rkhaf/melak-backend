@@ -3,10 +3,10 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,18 +17,18 @@ class MapPinsTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createScanWithPond(
+    private function createScanWithGarden(
         User $user,
         Disease $disease,
-        UserPond $pond,
+        UserGarden $garden,
         ?array $gps = null,
         ?string $kecamatan = null,
-    ): FishScan {
-        $scan = FishScan::factory()->create([
+    ): PlantScan {
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
-            'pond_id' => $pond->id,
+            'garden_id' => $garden->id,
             'status' => 'done',
-            'fish_type' => 'Lele',
+            'plant_type' => 'Tomat',
             'location_lat' => $gps[0] ?? null,
             'location_lng' => $gps[1] ?? null,
             'kecamatan' => $kecamatan,
@@ -45,19 +45,18 @@ class MapPinsTest extends TestCase
         return $scan;
     }
 
-    public function test_pins_are_public_and_return_pond_coordinates_without_owner_details(): void
+    public function test_pins_are_public_and_return_garden_coordinates_without_owner_details(): void
     {
         $user = User::factory()->create(['name' => 'Pemilik Rahasia']);
         $disease = Disease::factory()->create(['name' => 'Aeromoniasis']);
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Lahan Rahasia',
             'user_id' => $user->id,
-            'name' => 'Tambak Rahasia',
             'location_label' => 'Indramayu, Jawa Barat',
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $this->createScanWithPond($user, $disease, $pond);
+        $this->createScanWithGarden($user, $disease, $garden);
 
         $response = $this->getJson('/api/map/pins?days=7')
             ->assertOk()
@@ -65,37 +64,37 @@ class MapPinsTest extends TestCase
             ->assertJsonPath('data.0.lat', -6.44973)
             ->assertJsonPath('data.0.lng', 108.317185)
             ->assertJsonPath('data.0.disease_name', 'Aeromoniasis')
-            ->assertJsonPath('data.0.fish_type', 'Lele')
+            ->assertJsonPath('data.0.plant_type', 'Tomat')
             ->assertJsonPath('data.0.kecamatan', 'Jatibarang')
             ->assertJsonStructure(['data' => [[
                 'id', 'lat', 'lng', 'kecamatan', 'disease_id', 'disease_name',
-                'severity', 'confidence_score', 'fish_type', 'scanned_at',
+                'severity', 'confidence_score', 'plant_type', 'scanned_at',
             ]]]);
 
-        // Privasi: nama kolam, label lokasi, dan identitas pemilik tidak ikut.
-        $response->assertJsonMissingPath('data.0.pond_name')
+        // Privasi: nama kebun, label lokasi, dan identitas pemilik tidak ikut.
+        $response->assertJsonMissingPath('data.0.garden_name')
             ->assertJsonMissingPath('data.0.location_label')
-            ->assertJsonPath('data.0.pond_name', null)
+            ->assertJsonPath('data.0.garden_name', null)
             ->assertJsonPath('data.0.location_label', null);
 
-        $this->assertStringNotContainsString('Tambak Rahasia', $response->getContent());
+        $this->assertStringNotContainsString('Lahan Rahasia', $response->getContent());
         $this->assertStringNotContainsString('Pemilik Rahasia', $response->getContent());
     }
 
-    public function test_pin_prefers_scan_gps_over_pond_coordinates(): void
+    public function test_pin_prefers_scan_gps_over_garden_coordinates(): void
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $this->createScanWithPond(
+        $this->createScanWithGarden(
             $user,
             $disease,
-            $pond,
+            $garden,
             gps: [-6.445695, 107.936725],
             kecamatan: 'Haurgeulis',
         );
@@ -108,22 +107,22 @@ class MapPinsTest extends TestCase
             ->assertJsonPath('data.0.kecamatan', 'Haurgeulis');
     }
 
-    public function test_pin_is_returned_for_scan_without_pond_using_gps(): void
+    public function test_pin_is_returned_for_scan_without_garden_using_gps(): void
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $this->createScanWithPond($user, $disease, $pond);
+        $this->createScanWithGarden($user, $disease, $garden);
 
-        // Scan kedua tanpa kolam, hanya GPS.
-        $scan = FishScan::factory()->create([
+        // Scan kedua tanpa kebun, hanya GPS.
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
-            'pond_id' => null,
+            'garden_id' => null,
             'status' => 'done',
             'location_lat' => -6.319895,
             'location_lng' => 108.000665,
@@ -144,7 +143,7 @@ class MapPinsTest extends TestCase
         $this->assertCount(2, $pins);
 
         $gpsPin = $pins->firstWhere('kecamatan', 'Patrol');
-        $this->assertNotNull($gpsPin, 'Pin dari scan tanpa kolam harus tetap muncul');
+        $this->assertNotNull($gpsPin, 'Pin dari scan tanpa kebun harus tetap muncul');
         $this->assertSame(-6.319895, $gpsPin['lat']);
         $this->assertSame(108.000665, $gpsPin['lng']);
     }
@@ -153,13 +152,13 @@ class MapPinsTest extends TestCase
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $this->createScanWithPond($user, $disease, $pond);
+        $this->createScanWithGarden($user, $disease, $garden);
 
         $this->getJson('/api/map/pins?days=7')
             ->assertOk()
@@ -170,15 +169,15 @@ class MapPinsTest extends TestCase
     {
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
-            'pond_id' => $pond->id,
+            'garden_id' => $garden->id,
             'status' => 'done',
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
@@ -204,17 +203,17 @@ class MapPinsTest extends TestCase
         $user = User::factory()->create();
         $disease = Disease::factory()->create();
         $other = Disease::factory()->create();
-        $pond = UserPond::create([
-            'name' => 'Kolam Uji',
+        $garden = UserGarden::create([
+            'name' => 'Kebun Uji',
             'user_id' => $user->id,
             'location_lat' => -6.44973,
             'location_lng' => 108.317185,
         ]);
-        $this->createScanWithPond($user, $disease, $pond);
+        $this->createScanWithGarden($user, $disease, $garden);
 
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
-            'pond_id' => null,
+            'garden_id' => null,
             'status' => 'done',
             'location_lat' => -6.319895,
             'location_lng' => 108.000665,

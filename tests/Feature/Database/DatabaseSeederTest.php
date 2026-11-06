@@ -23,14 +23,14 @@ class DatabaseSeederTest extends TestCase
     {
         $this->seed();
 
-        // 11 kelas model → ensiklopedia penyakit (FR-10.11 / FR-09.2.1).
+        // 11 penyakit tanaman → ensiklopedia (FR-09.2.1).
         $this->assertSame(11, Disease::count());
         $this->assertTrue(
-            Disease::query()->where('slug', 'aeromoniasis')->first()?->treatments()->exists(),
+            Disease::query()->where('slug', 'tomato-bacterial-spot')->first()?->treatments()->exists(),
             'Langkah pengobatan wajib ikut ter-seed.',
         );
         $this->assertTrue(
-            Disease::query()->where('slug', 'aeromoniasis')->first()?->preventions()->exists(),
+            Disease::query()->where('slug', 'tomato-bacterial-spot')->first()?->preventions()->exists(),
             'Langkah pencegahan wajib ikut ter-seed.',
         );
 

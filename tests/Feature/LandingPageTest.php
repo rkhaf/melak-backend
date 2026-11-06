@@ -14,7 +14,7 @@ class LandingPageTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Deteksi Penyakit Ikan', false)
+            ->assertSee('Deteksi Penyakit Tanaman', false)
             ->assertSee('css/landing.css')
             ->assertSee('js/landing.js');
     }

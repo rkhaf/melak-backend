@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ $appName }} — Deteksi Penyakit tanaman & Komunitas kebun</title>
+  <title>{{ $appName }} — Deteksi Penyakit Tanaman & Komunitas Kebun</title>
   <meta name="description" content="Melak: scan foto tanaman, AI memprediksi penyakit dalam hitungan detik. Ensiklopedia penyakit, forum kebun, dan peta sebaran wabah dalam satu aplikasi." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -79,7 +79,7 @@
             fillOpacity: 0.4,
             radius: 1000
         }).addTo(map);
-        wabahMerah.bindPopup("<b>Waspada!</b><br>Tren Aeromonas Kritis di area ini.");
+        wabahMerah.bindPopup("<b>Waspada!</b><br>Tren penyakit tanaman meningkat di area ini.");
 
         // 2. Wabah Kuning 1 (Sedang)
         var wabahKuning1 = L.circle([-6.2980, 108.2820], {
@@ -101,7 +101,7 @@
     });
 </script>
 
-  <link rel="icon" type="image/svg+xml" href="images/melak.svg" />
+  <link rel="icon" type="image/svg+xml" href="images/logo_trns.png" />
   {{-- <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%230EA5E9'/%3E%3Cellipse cx='32' cy='30' rx='16' ry='10' fill='%23fff'/%3E%3Cpath d='M16 30 8 24v12z' fill='%23fff'/%3E%3Ccircle cx='42' cy='27' r='2.5' fill='%230369A1'/%3E%3C/svg%3E" /> --}}
 </head>
 <body>
@@ -226,7 +226,7 @@
             <svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 11h6M9 14h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </span>
           <h3>Forum Komunitas</h3>
-          <p>Tanyakan hasil scan, bagtanaman kasus langka, dan terima suara terbaik dari pekebun serta ahli lain di seluruh Indonesia.</p>
+          <p>Tanyakan hasil scan, bagikan kasus langka, dan terima suara terbaik dari pekebun serta ahli lain di seluruh Indonesia.</p>
         </article>
 
         <article class="card reveal">
@@ -234,7 +234,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 1 1 14 0c0 5.5-7 11-7 11Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
           </span>
           <h3>Peta Sebaran Wabah</h3>
-          <p>Lihat titik kasus penyakit per provinsi secara real-time dan dapatkan peringatan outbreak sebelum menyebar ke kolammu.</p>
+          <p>Lihat titik kasus penyakit per provinsi secara real-time dan dapatkan peringatan outbreak sebelum menyebar ke kebunmu.</p>
         </article>
 
         <article class="card reveal delay-1">
@@ -242,7 +242,7 @@
             <svg viewBox="0 0 24 24"><path d="M3 16c2.5-2 4.5 1.5 7-0.5S14 14 16.5 15.5 21 15 21 15M3 20h18M5 12V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5V12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
           <h3>Manajemen kebun</h3>
-          <p>Catat kolam, jenis tanaman, dan kapasitas. Skor kesehatan kolam + grafik tren membantumu membaca kondisi budidaya.</p>
+          <p>Catat kebun, jenis tanaman, dan kapasitas. Skor kesehatan kebun + grafik tren membantumu membaca kondisi budidaya.</p>
         </article>
 
         <article class="card reveal delay-2">
@@ -261,12 +261,12 @@
     <div class="container">
       <div class="section-head reveal">
         {{-- <span class="eyebrow">Untuk Siapa</span> --}}
-        <h2>Dibuat untuk semua yang berkecimpung di air tawar</h2>
-        <p>Dari kolam halaman rumah sampai pembudidayaan komersial.</p>
+        <h2>Dibuat untuk petani dan pekebun</h2>
+        <p>Dari kebun halaman rumah sampai pembudidayaan komersial.</p>
       </div>
       <div class="pillar-grid">
         <article class="pillar pillar-sky reveal">
-          <span class="pillar-emoji" aria-hidden="true">🐟</span>
+          <span class="pillar-emoji" aria-hidden="true">🪴</span>
           <h3>Pekebun Kecil</h3>
           <p>Modal ponsel saja — scan penyakit kapan saja, tanya komunitas, dan ikuti panduan penanganan langkah demi langkah.</p>
           <ul>
@@ -278,9 +278,9 @@
         <article class="pillar pillar-teal reveal delay-1">
           <span class="pillar-emoji" aria-hidden="true">🏪</span>
           <h3>Pembudidaya Komersial</h3>
-          <p>Kelola banyak kolam dalam satu tempat, pantau skor kesehatan, dan baca tren sebelum jatuh korban massal.</p>
+          <p>Kelola banyak kebun dalam satu tempat, pantau skor kesehatan, dan baca tren sebelum jatuh korban massal.</p>
           <ul>
-            <li>Manajemen multi-kolam</li>
+            <li>Manajemen multi-kebun</li>
             <li>Skor &amp; grafik kesehatan</li>
             <li>Peringatan wabah dini</li>
           </ul>
@@ -335,32 +335,32 @@
       <div class="section-head reveal">
         {{-- <span class="eyebrow">Ensiklopedia</span> --}}
         <h2>Kenali penyakit, kenali gejalanya</h2>
-        <p>Puluhan penyakit tanaman air tawar dengan panduan penanganan lengkap di aplikasi.</p>
+        <p>Kenali penyakit tanaman pangan dan sayuran dengan panduan penanganan di aplikasi.</p>
       </div>
       <div class="disease-grid">
         <article class="disease-card reveal">
-          <div class="disease-top"><span class="pill pill-berat">Berat</span><span class="disease-tag">Parasit</span></div>
-          <h3>White Spot (Ich)</h3>
-          <p>Bintik putih seperti garam di kulit &amp; sirip, tanaman menggosokkan badan ke dinding.</p>
-          <div class="disease-foot"><span>Garam tanaman · Naikkan suhu</span></div>
+          <div class="disease-top"><span class="pill pill-sedang">Sedang</span><span class="disease-tag">Bakteri</span></div>
+          <h3>Bercak Bakteri pada Tomat</h3>
+          <p>Bercak gelap pada daun dan bercak kasar pada buah tomat.</p>
+          <div class="disease-foot"><span>Sanitasi kebun · Bibit sehat</span></div>
         </article>
         <article class="disease-card reveal delay-1">
-          <div class="disease-top"><span class="pill pill-kritis">Kritis</span><span class="disease-tag">Virus</span></div>
-          <h3>Koi Herpesvirus</h3>
-          <p>Perdarahan pada insang, tubuh memerah, mortalitas tinggi pada tanaman koi &amp; mas.</p>
-          <div class="disease-foot"><span>Karantina ketat</span></div>
+          <div class="disease-top"><span class="pill pill-berat">Berat</span><span class="disease-tag">Jamur</span></div>
+          <h3>Hawar Daun Jagung</h3>
+          <p>Lesi memanjang berbentuk cerutu dapat membuat daun jagung mengering.</p>
+          <div class="disease-foot"><span>Pantau gejala · Kelola residu</span></div>
         </article>
         <article class="disease-card reveal delay-2">
-          <div class="disease-top"><span class="pill pill-sedang">Sedang</span><span class="disease-tag">Bakteri</span></div>
-          <h3>Aeromonas</h3>
-          <p>Luka terbuka, sisip terangkat, dan perut buncit pada tanaman lele serta mas.</p>
-          <div class="disease-foot"><span>Antibiotik · Air lebih bersih</span></div>
+          <div class="disease-top"><span class="pill pill-sedang">Sedang</span><span class="disease-tag">Jamur</span></div>
+          <h3>Bercak Alternaria pada Tomat</h3>
+          <p>Bercak cokelat dengan lingkaran konsentris sering muncul pada daun tua.</p>
+          <div class="disease-foot"><span>Buang daun sakit · Rotasi tanaman</span></div>
         </article>
         <article class="disease-card reveal delay-3">
-          <div class="disease-top"><span class="pill pill-ringan">Ringan</span><span class="disease-tag">Jamur</span></div>
-          <h3>Saprolegnia</h3>
-          <p>Lapisan kapas putih pada kulit, sirip, atau telur — umum setelah cedera.</p>
-          <div class="disease-foot"><span>Garam · Pembersihan kolam</span></div>
+          <div class="disease-top"><span class="pill pill-ringan">Ringan</span><span class="disease-tag">Kondisi sehat</span></div>
+          <h3>Jagung Sehat</h3>
+          <p>Tidak tampak gejala penyakit umum pada bagian tanaman yang difoto.</p>
+          <div class="disease-foot"><span>Pantau tanaman secara rutin</span></div>
         </article>
       </div>
     </div>
@@ -371,7 +371,7 @@
     <div class="container peta-inner">
       <div class="peta-copy reveal">
         {{-- <span class="eyebrow">Peta Sebaran</span> --}}
-        <h2>Wabah terlihat sebelum menyentuh kolammu</h2>
+        <h2>Wabah terlihat sebelum menyentuh kebunmu</h2>
         <p>
           Pantau sebaran kasus penyakit tanaman di sekitar wilayah Indramayu secara real-time. Ketuk titik indikasi pada peta untuk melihat tingkat keparahan & jenis penyakit.
         </p>
@@ -422,18 +422,18 @@
         <div class="car-track" data-car-track="quotes">
           <figure class="quote-card">
             <div class="quote-stars" aria-label="5 dari 5">★★★★★</div>
-            <blockquote>Kolam lele saya mendadak berbintik. Scan di Melak, ternyata white spot — langsung dapat langkah garamnya. Dua hari membaik.</blockquote>
-            <figcaption><span class="avatar">AP</span><span><strong>Agus P.</strong><span>Pekebun lele · Karangsong</span></span></figcaption>
+            <blockquote>Daun tomat saya mulai berbintik setelah hujan. Panduan Melak membantu saya memeriksa gejala dan menjaga kebun tetap bersih.</blockquote>
+            <figcaption><span class="avatar">AP</span><span><strong>Agus P.</strong><span>Petani tomat · Karangsong</span></span></figcaption>
           </figure>
           <figure class="quote-card">
             <div class="quote-stars" aria-label="5 dari 5">★★★★★</div>
-            <blockquote>Yang paling kepakai itu forumnya. Unggah hasil scan, malamnya sudah ada jawaban dari pekebun senior.</blockquote>
-            <figcaption><span class="avatar">N</span><span><strong>Ningsih</strong><span>Kolam tanaman Mas · Pabean Ilir</span></span></figcaption>
+            <blockquote>Forum komunitas membantu saya berdiskusi soal bercak daun jagung dan cara memantau penyebarannya.</blockquote>
+            <figcaption><span class="avatar">N</span><span><strong>Ningsih</strong><span>Petani jagung · Pabean Ilir</span></span></figcaption>
           </figure>
           <figure class="quote-card">
             <div class="quote-stars" aria-label="5 dari 5">★★★★★</div>
-            <blockquote>Peta sebaran bikin saya waspada lebih awal pas kasus WFD lagi naik di kecamatan sebelah. Pintu air langsung tak tutup sementara, alhamdulillah panen aman.</blockquote>
-            <figcaption><span class="avatar">B</span><span><strong>Budiono</strong><span>Budidaya Udang · Losarang</span></span></figcaption>
+            <blockquote>Panduan sanitasi dan pemantauan rutin membantu saya menjaga tanaman cabai tetap sehat.</blockquote>
+            <figcaption><span class="avatar">B</span><span><strong>Budiono</strong><span>Petani cabai · Losarang</span></span></figcaption>
           </figure>
         </div>
         <button class="car-btn" data-car-next="quotes" aria-label="Berikutnya">›</button>
@@ -470,10 +470,10 @@
     <div class="marquee-track">
       <span>Deteksi AI</span><i>✦</i><span>Forum Komunitas</span><i>✦</i><span>Peta Sebaran Wabah</span><i>✦</i>
       <span>Ensiklopedia Penyakit</span><i>✦</i><span>Manajemen kebun</span><i>✦</i><span>Notifikasi Pintar</span><i>✦</i>
-      <span>Tips Harian</span><i>✦</i><span>Skor Kesehatan Kolam</span><i>✦</i>
+      <span>Tips Harian</span><i>✦</i><span>Skor Kesehatan Kebun</span><i>✦</i>
       <span>Deteksi AI</span><i>✦</i><span>Forum Komunitas</span><i>✦</i><span>Peta Sebaran Wabah</span><i>✦</i>
       <span>Ensiklopedia Penyakit</span><i>✦</i><span>Manajemen kebun</span><i>✦</i><span>Notifikasi Pintar</span><i>✦</i>
-      <span>Tips Harian</span><i>✦</i><span>Skor Kesehatan Kolam</span><i>✦</i>
+      <span>Tips Harian</span><i>✦</i><span>Skor Kesehatan Kebun</span><i>✦</i>
     </div>
   </div>
 
@@ -493,16 +493,16 @@
           </details>
         @empty
           {{-- <details class="faq-item">
-            <summary>Bagaimana cara AI Melak mendeteksi penyakit tanaman?<span class="faq-icon" aria-hidden="true"></span></summary>
-            <div class="faq-body"><p>Melak menggunakan model CNN berbasis Vision AI yang dilatih dengan dataset klinis penyakit tanaman air tawar. Cukup foto tanaman bergejala, lalu sistem menganalisis lesi, warna luka, bintik, dan kondisi sirip dalam hitungan detik.</p></div>
+            <summary>Bagaimana cara AI Melak mengklasifikasikan tanaman?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body"><p>Unggah foto tanaman yang ingin diperiksa. Sistem menganalisis pola visual dan menampilkan hasil serta tingkat keyakinannya.</p></div>
           </details>
           <details class="faq-item">
             <summary>Apakah aplikasi Melak dapat digunakan secara gratis?<span class="faq-icon" aria-hidden="true"></span></summary>
-            <div class="faq-body"><p>Ya! Melak gratis untuk seluruh pembudidaya tanaman, pemilik kebun, dan akademisi pertanamanan — termasuk diagnosis dasar, ensiklopedia penyakit, dan forum komunitas.</p></div>
+            <div class="faq-body"><p>Melak dapat digunakan secara gratis untuk membantu petani mengenali gejala penyakit tanaman dan berdiskusi dengan komunitas.</p></div>
           </details>
           <details class="faq-item">
             <summary>Jenis tanaman apa saja yang didukung?<span class="faq-icon" aria-hidden="true"></span></summary>
-            <div class="faq-body"><p>Saat ini Melak dioptimalkan untuk komoditas air tawar utama: Lele, Nila, Gurame, Patin, dan Mas — dan terus diperbarui dengan spesies lain.</p></div>
+            <div class="faq-body"><p>Klasifikasi yang disediakan backend mencakup tomat, jagung, paprika, dan cabai. Cakupan hasil bergantung pada model klasifikasi yang terhubung.</p></div>
           </details> --}}
         @endforelse
       </div>

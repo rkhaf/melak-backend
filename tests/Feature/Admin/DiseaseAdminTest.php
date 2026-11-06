@@ -13,27 +13,27 @@ class DiseaseAdminTest extends AdminTestCase
         $admin = $this->actingAsAdmin();
 
         $this->post(route('admin.diseases.store'), [
-            'name' => 'White Spot (Ich)',
-            'name_en' => 'White Spot',
-            'category' => 'parasite',
+            'name' => 'Bercak Bakteri pada Tomat',
+            'name_en' => 'Tomato Bacterial Spot',
+            'category' => 'bacteria',
             'severity' => 'berat',
-            'description' => 'Bintik putih pada tubuh ikan.',
-            'causes' => 'Protozoa Ichthyophthirius multifiliis.',
-            'symptoms' => 'Bintik putih, ikan menggosokkan tubuh.',
+            'description' => 'Bercak gelap pada daun tomat.',
+            'causes' => 'Bakteri Xanthomonas.',
+            'symptoms' => 'Bercak gelap, daun menguning.',
             'recovery_days_min' => 5,
             'recovery_days_max' => 14,
             'is_published' => 1,
             'treatments' => [
-                ['title' => 'Naikkan suhu', 'description' => 'Suhu 30°C', 'duration_days' => 5],
-                ['title' => 'Garam', 'description' => '3 ppt', 'duration_days' => 3],
+                ['title' => 'Buang daun bergejala', 'description' => 'Pangkas daun terinfeksi.', 'duration_days' => 5],
+                ['title' => 'Jaga daun tetap kering', 'description' => 'Siram di pangkal tanaman.', 'duration_days' => 3],
             ],
             'preventions' => [
-                ['description' => 'Karantina ikan baru.'],
+                ['description' => 'Gunakan benih sehat.'],
             ],
         ])->assertRedirect(route('admin.diseases.index'));
 
-        $disease = Disease::where('slug', 'white-spot-ich')->firstOrFail();
-        $this->assertSame('parasite', $disease->category);
+        $disease = Disease::where('slug', 'bercak-bakteri-pada-tomat')->firstOrFail();
+        $this->assertSame('bacteria', $disease->category);
         $this->assertSame($admin->id, $disease->created_by);
         $this->assertTrue($disease->is_published);
         $this->assertCount(2, $disease->treatments);
@@ -48,8 +48,8 @@ class DiseaseAdminTest extends AdminTestCase
 
         $this->get(route('admin.diseases.edit', $disease))
             ->assertOk()
-            ->assertSee('White Spot (Ich)')
-            ->assertSee('Naikkan suhu');
+            ->assertSee('Bercak Bakteri pada Tomat')
+            ->assertSee('Buang daun bergejala');
     }
 
     public function test_store_requires_name_and_valid_enums(): void
@@ -131,11 +131,11 @@ class DiseaseAdminTest extends AdminTestCase
         Storage::fake('public');
         $this->actingAsAdmin();
 
-        $disease = Disease::factory()->create(['name' => 'Aeromonas', 'slug' => 'aeromonas-img']);
+        $disease =         Disease::factory()->create(['name' => 'Bercak Bakteri Tomat', 'slug' => 'bercak-tomat-img']);
 
         // 1) Upload dua gambar dari form edit.
         $this->put(route('admin.diseases.update', $disease), [
-            'name' => 'Aeromonas',
+            'name' => 'Bercak Bakteri Tomat',
             'category' => 'bacteria',
             'severity' => 'berat',
             'is_published' => 1,
@@ -155,7 +155,7 @@ class DiseaseAdminTest extends AdminTestCase
         [$first, $second] = [$images->first(), $images->last()];
 
         $this->put(route('admin.diseases.update', $disease), [
-            'name' => 'Aeromonas',
+            'name' => 'Bercak Bakteri Tomat',
             'category' => 'bacteria',
             'severity' => 'berat',
             'is_published' => 1,
@@ -201,18 +201,18 @@ class DiseaseAdminTest extends AdminTestCase
 
     public function test_index_filters_by_search_and_category(): void
     {
-        Disease::factory()->create(['name' => 'Aeromonas Secreta', 'name_en' => 'Bacterial Hemorrhage', 'category' => 'bacteria']);
-        Disease::factory()->create(['name' => 'Saprolegnia', 'name_en' => 'Water Mold Infection', 'category' => 'fungi']);
+        Disease::factory()->create(['name' => 'Bercak Tomat Secreta', 'name_en' => 'Bacterial Leaf Spot', 'category' => 'bacteria']);
+        Disease::factory()->create(['name' => 'Kapang Daun', 'name_en' => 'Tomato Leaf Mold', 'category' => 'fungi']);
 
         $admin = $this->actingAsAdmin();
 
-        $this->actingAs($admin)->get(route('admin.diseases.index', ['q' => 'Aeromonas']))
+        $this->actingAs($admin)->get(route('admin.diseases.index', ['q' => 'Bercak Tomat']))
             ->assertOk()
-            ->assertSee('Aeromonas Secreta')
-            ->assertDontSee('Saprolegnia');
+            ->assertSee('Bercak Tomat Secreta')
+            ->assertDontSee('Kapang Daun');
 
         $this->actingAs($admin)->get(route('admin.diseases.index', ['category' => 'fungi']))
-            ->assertSee('Saprolegnia')
-            ->assertDontSee('Aeromonas Secreta');
+            ->assertSee('Kapang Daun')
+            ->assertDontSee('Bercak Tomat Secreta');
     }
 }

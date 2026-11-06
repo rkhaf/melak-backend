@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * Klien ML (FastAPI) untuk prediksi penyakit ikan (NFR-01.2, hard limit 30 detik).
+ * Klien ML (FastAPI) untuk prediksi penyakit tanaman (NFR-01.2, hard limit 30 detik).
  *
  * Driver: "fake" (dev/test, tanpa Python) atau "http" (ML_BASE_URL).
  * Transport http mengikuti API.md §10.1 — multipart/form-data, bukan JSON.
@@ -38,10 +38,10 @@ class MlClient
      *
      * @throws MlException
      */
-    public function predict(string $scanId, array $imagePaths = [], ?string $fishType = null): array
+    public function predict(string $scanId, array $imagePaths = [], ?string $plantType = null): array
     {
         return $this->driver() === 'http'
-            ? $this->predictViaHttp($scanId, $imagePaths, $fishType)
+            ? $this->predictViaHttp($scanId, $imagePaths, $plantType)
             : $this->predictFake($scanId);
     }
 
@@ -55,7 +55,7 @@ class MlClient
      *
      * @throws MlException
      */
-    private function predictViaHttp(string $scanId, array $imagePaths, ?string $fishType): array
+    private function predictViaHttp(string $scanId, array $imagePaths, ?string $plantType): array
     {
         $timeout = (int) config('ngingu.ml.timeout', 30);
         $baseUrl = rtrim((string) config('ngingu.ml.base_url'), '/');
@@ -82,8 +82,8 @@ class MlClient
             'gradcam' => (bool) config('ngingu.ml.gradcam', true) ? 'true' : 'false',
         ];
 
-        if (! $isBatch && $fishType !== null && trim($fishType) !== '') {
-            $fields['fish_type'] = $fishType;
+        if (! $isBatch && $plantType !== null && trim($plantType) !== '') {
+            $fields['plant_type'] = $plantType;
         }
 
         try {
@@ -224,7 +224,7 @@ class MlClient
         $names = Disease::query()->published()->inRandomOrder()->limit(3)->pluck('name')->all();
 
         if ($names === []) {
-            $names = ['Ikan Sehat'];
+            $names = ['Tanaman Sehat'];
         }
 
         $rest = 100 - $confidence;

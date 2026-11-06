@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use Illuminate\Contracts\View\View;
 
 /**
@@ -17,8 +17,8 @@ class ScanWebController extends Controller
 {
     public function show(string $id): View
     {
-        $scan = FishScan::with([
-            'pond',
+        $scan = PlantScan::with([
+            'garden',
             'images',
             'result.disease.treatments',
             'result.disease.preventions',

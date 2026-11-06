@@ -3,52 +3,52 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Kolam / tambak (API.md §7.2 — §7.6, FR-08.1 — FR-08.2).
+ * Kebun / lahan (API.md §7.2 — §7.6, FR-08.1 — FR-08.2).
  */
-class PondController extends Controller
+class GardenController extends Controller
 {
     use ApiResponse, ScanPresenter;
 
     /**
-     * GET /api/ponds (API.md §7.2).
+     * GET /api/gardens (API.md §7.2).
      */
     public function index(Request $request): JsonResponse
     {
-        $ponds = UserPond::where('user_id', $request->user()->id)
+        $gardens = UserGarden::where('user_id', $request->user()->id)
             ->withCount(['scans as scans_count'])
             ->orderByDesc('created_at')
             ->get();
 
-        return $this->ok($ponds->map(fn (UserPond $pond) => $this->pondPayload($pond))->values());
+        return $this->ok($gardens->map(fn (UserGarden $garden) => $this->gardenPayload($garden))->values());
     }
 
     /**
-     * GET /api/ponds/{id} (API.md §7.14) — detail satu tambak milik sendiri.
-     * Dipakai form "Ubah Tambak" & layar laporan kesehatan untuk prefill
+     * GET /api/gardens/{id} (API.md §7.14) — detail satu lahan milik sendiri.
+     * Dipakai form "Ubah Lahan" & layar laporan kesehatan untuk prefill
      * data segar (bukan dari argumen route).
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $pond = $this->ownPond($request, $id);
+        $garden = $this->ownGarden($request, $id);
 
-        if (! $pond) {
-            return $this->fail('Kolam tidak ditemukan.', 404);
+        if (! $garden) {
+            return $this->fail('Kebun tidak ditemukan.', 404);
         }
 
-        return $this->ok($this->pondPayload($pond));
+        return $this->ok($this->gardenPayload($garden));
     }
 
     /**
-     * POST /api/ponds (API.md §7.3).
+     * POST /api/gardens (API.md §7.3).
      */
     public function store(Request $request): JsonResponse
     {
@@ -59,33 +59,33 @@ class PondController extends Controller
             'location_label' => 'nullable|string|max:150',
             'area_m2' => 'nullable|numeric|min:1|max:1000000',
             'capacity' => 'nullable|integer|min:1|max:10000000',
-            'fish_types' => 'sometimes|array|max:10',
-            'fish_types.*' => 'string|max:30',
+            'plant_types' => 'sometimes|array|max:10',
+            'plant_types.*' => 'string|max:30',
             'description' => 'nullable|string|max:500',
         ], [
-            'name.required' => 'Nama kolam wajib diisi.',
-            'name.min' => 'Nama kolam minimal 2 karakter.',
-            'fish_types.max' => 'Maksimal 10 jenis ikan.',
+            'name.required' => 'Nama kebun wajib diisi.',
+            'name.min' => 'Nama kebun minimal 2 karakter.',
+            'plant_types.max' => 'Maksimal 10 jenis tanaman.',
         ]);
 
-        $pond = UserPond::create([
+        $garden = UserGarden::create([
             'user_id' => $request->user()->id,
             'health_score' => 100,
             ...$data,
         ]);
 
-        return $this->created($this->pondPayload($pond), 'Kolam berhasil ditambahkan');
+        return $this->created($this->gardenPayload($garden), 'Kebun berhasil ditambahkan');
     }
 
     /**
-     * PUT /api/ponds/{id} (API.md §7.4).
+     * PUT /api/gardens/{id} (API.md §7.4).
      */
     public function update(Request $request, string $id): JsonResponse
     {
-        $pond = $this->ownPond($request, $id);
+        $garden = $this->ownGarden($request, $id);
 
-        if (! $pond) {
-            return $this->fail('Kolam tidak ditemukan.', 404);
+        if (! $garden) {
+            return $this->fail('Kebun tidak ditemukan.', 404);
         }
 
         $data = $request->validate([
@@ -95,42 +95,42 @@ class PondController extends Controller
             'location_label' => 'nullable|string|max:150',
             'area_m2' => 'nullable|numeric|min:1|max:1000000',
             'capacity' => 'nullable|integer|min:1|max:10000000',
-            'fish_types' => 'sometimes|array|max:10',
-            'fish_types.*' => 'string|max:30',
+            'plant_types' => 'sometimes|array|max:10',
+            'plant_types.*' => 'string|max:30',
             'description' => 'nullable|string|max:500',
         ]);
 
-        $pond->fill($data);
-        $pond->save();
+        $garden->fill($data);
+        $garden->save();
 
-        return $this->ok($this->pondPayload($pond), 'Kolam berhasil diperbarui');
+        return $this->ok($this->gardenPayload($garden), 'Kebun berhasil diperbarui');
     }
 
     /**
-     * DELETE /api/ponds/{id} (API.md §7.5).
+     * DELETE /api/gardens/{id} (API.md §7.5).
      */
     public function destroy(Request $request, string $id): Response
     {
-        $pond = $this->ownPond($request, $id);
+        $garden = $this->ownGarden($request, $id);
 
-        if (! $pond) {
-            return $this->fail('Kolam tidak ditemukan.', 404);
+        if (! $garden) {
+            return $this->fail('Kebun tidak ditemukan.', 404);
         }
 
-        $pond->delete();
+        $garden->delete();
 
         return $this->noContent();
     }
 
     /**
-     * GET /api/ponds/{id}/health-report (API.md §7.6, FR-04.2).
+     * GET /api/gardens/{id}/health-report (API.md §7.6, FR-04.2).
      */
     public function healthReport(Request $request, string $id): JsonResponse
     {
-        $pond = $this->ownPond($request, $id);
+        $garden = $this->ownGarden($request, $id);
 
-        if (! $pond) {
-            return $this->fail('Kolam tidak ditemukan.', 404);
+        if (! $garden) {
+            return $this->fail('Kebun tidak ditemukan.', 404);
         }
 
         $data = $request->validate([
@@ -143,59 +143,59 @@ class PondController extends Controller
             default => 7,
         };
 
-        $scans = FishScan::with(['result.disease'])
-            ->where('pond_id', $pond->id)
+        $scans = PlantScan::with(['result.disease'])
+            ->where('garden_id', $garden->id)
             ->where('status', 'done')
             ->where('created_at', '>=', now()->startOfDay()->subDays($days - 1))
             ->get();
 
-        $pond->health_score = $this->computeHealthScore($pond);
-        $pond->save();
+        $garden->health_score = $this->computeHealthScore($garden);
+        $garden->save();
 
         return $this->ok([
-            'pond' => ['id' => $pond->id, 'name' => $pond->name],
-            'health_score' => $pond->health_score,
+            'garden' => ['id' => $garden->id, 'name' => $garden->name],
+            'health_score' => $garden->health_score,
             'trend' => $this->trend($scans, $days),
-            'repeat_disease_alert' => $this->repeatDiseaseAlert($pond),
-            'last_scan' => $this->lastScan($pond),
+            'repeat_disease_alert' => $this->repeatDiseaseAlert($garden),
+            'last_scan' => $this->lastScan($garden),
         ]);
     }
 
-    private function ownPond(Request $request, string $id): ?UserPond
+    private function ownGarden(Request $request, string $id): ?UserGarden
     {
-        return UserPond::where('user_id', $request->user()->id)->find($id);
+        return UserGarden::where('user_id', $request->user()->id)->find($id);
     }
 
-    private function pondPayload(UserPond $pond): array
+    private function gardenPayload(UserGarden $garden): array
     {
         return [
-            'id' => $pond->id,
-            'name' => $pond->name,
-            'description' => $pond->description,
-            'location_lat' => $pond->location_lat !== null ? (float) $pond->location_lat : null,
-            'location_lng' => $pond->location_lng !== null ? (float) $pond->location_lng : null,
-            'location_label' => $pond->location_label,
-            'area_m2' => $pond->area_m2 !== null ? (float) $pond->area_m2 : null,
-            'capacity' => $pond->capacity !== null ? (int) $pond->capacity : null,
-            'fish_types' => $pond->fish_types ?? [],
-            'health_score' => (int) $pond->health_score,
-            'scans_count' => (int) ($pond->scans_count ?? $pond->scans()->count()),
-            'created_at' => $pond->created_at?->toIso8601String(),
+            'id' => $garden->id,
+            'name' => $garden->name,
+            'description' => $garden->description,
+            'location_lat' => $garden->location_lat !== null ? (float) $garden->location_lat : null,
+            'location_lng' => $garden->location_lng !== null ? (float) $garden->location_lng : null,
+            'location_label' => $garden->location_label,
+            'area_m2' => $garden->area_m2 !== null ? (float) $garden->area_m2 : null,
+            'capacity' => $garden->capacity !== null ? (int) $garden->capacity : null,
+            'plant_types' => $garden->plant_types ?? [],
+            'health_score' => (int) $garden->health_score,
+            'scans_count' => (int) ($garden->scans_count ?? $garden->scans()->count()),
+            'created_at' => $garden->created_at?->toIso8601String(),
         ];
     }
 
     /**
      * FR-04.2.2 — skor 0-100 dari frekuensi & keparahan penyakit (30 hari terakhir).
      */
-    private function computeHealthScore(UserPond $pond): int
+    private function computeHealthScore(UserGarden $garden): int
     {
         $penalties = ['ringan' => 4, 'sedang' => 8, 'berat' => 15, 'kritis' => 25];
 
         $results = ScanResult::query()
             ->whereIn('scan_id', fn ($q) => $q
                 ->select('id')
-                ->from('fish_scans')
-                ->where('pond_id', $pond->id)
+                ->from('plant_scans')
+                ->where('garden_id', $garden->id)
                 ->where('status', 'done')
                 ->where('created_at', '>=', now()->subDays(30)))
             ->with('disease:id,severity')
@@ -211,13 +211,13 @@ class PondController extends Controller
     }
 
     /**
-     * @param  Collection<int, FishScan>  $scans
+     * @param  Collection<int, PlantScan>  $scans
      * @return array<int, array{date: string, scans: int, diseases: array<int, string>}>
      */
     private function trend($scans, int $days): array
     {
         $start = now()->startOfDay()->subDays($days - 1);
-        $grouped = $scans->groupBy(fn (FishScan $scan) => $scan->created_at->toDateString());
+        $grouped = $scans->groupBy(fn (PlantScan $scan) => $scan->created_at->toDateString());
 
         $trend = [];
 
@@ -242,13 +242,13 @@ class PondController extends Controller
      *
      * @return array{disease_id: int, name: string, occurrences: int}|null
      */
-    private function repeatDiseaseAlert(UserPond $pond): ?array
+    private function repeatDiseaseAlert(UserGarden $garden): ?array
     {
         $results = ScanResult::query()
             ->whereIn('scan_id', fn ($q) => $q
                 ->select('id')
-                ->from('fish_scans')
-                ->where('pond_id', $pond->id)
+                ->from('plant_scans')
+                ->where('garden_id', $garden->id)
                 ->where('status', 'done')
                 ->where('created_at', '>=', now()->subDays(7)))
             ->whereNotNull('disease_id')
@@ -275,9 +275,9 @@ class PondController extends Controller
         ];
     }
 
-    private function lastScan(UserPond $pond): ?array
+    private function lastScan(UserGarden $garden): ?array
     {
-        $scan = FishScan::where('pond_id', $pond->id)->latest()->first(['id', 'created_at']);
+        $scan = PlantScan::where('garden_id', $garden->id)->latest()->first(['id', 'created_at']);
 
         if (! $scan) {
             return null;

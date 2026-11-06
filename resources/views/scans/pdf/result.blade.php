@@ -22,7 +22,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Melak — Hasil Scan Penyakit Ikan</h1>
+        <h1>Melak — Hasil Scan Penyakit Tanaman</h1>
         <p>Dicetak {{ $generatedAt->format('d/m/Y H:i') }} · ID Scan: {{ $scan->id }}</p>
     </div>
 
@@ -32,14 +32,14 @@
         @endif
 
         @if ($result && $result->low_confidence_warning)
-            <div class="warn"><strong>Confidence rendah (&lt; 60%).</strong> Hasil prediksi tidak pasti — periksa kembali kondisi ikan atau lakukan scan ulang dengan foto yang lebih jelas.</div>
+            <div class="warn"><strong>Confidence rendah (&lt; 60%).</strong> Hasil prediksi tidak pasti — periksa kembali kondisi tanaman atau lakukan scan ulang dengan foto yang lebih jelas.</div>
         @endif
 
         <h2>Informasi Scan</h2>
         <table class="meta">
             <tr><td>Tanggal scan</td><td>{{ $scan->created_at?->format('d/m/Y H:i') }}</td></tr>
-            <tr><td>Kolam</td><td>{{ $scan->pond?->name ?? '-' }}</td></tr>
-            <tr><td>Jenis ikan</td><td>{{ $scan->fish_type ?? '-' }}</td></tr>
+            <tr><td>Kebun</td><td>{{ $scan->garden?->name ?? '-' }}</td></tr>
+            <tr><td>Jenis tanaman</td><td>{{ $scan->plant_type ?? '-' }}</td></tr>
             <tr><td>Deskripsi gejala</td><td>{{ $scan->symptoms_desc ?? '-' }}</td></tr>
             <tr><td>Status</td><td>{{ $scan->status }}</td></tr>
         </table>
@@ -97,7 +97,7 @@
             @endif
         @endif
 
-        <p class="muted" style="margin-top: 24px;">Dokumen dihasilkan otomatis oleh Melak. Konsultasikan dengan penyuluh perikanan untuk penanganan lanjutan.</p>
+        <p class="muted" style="margin-top: 24px;">Dokumen dihasilkan otomatis oleh Melak. Konsultasikan hasil ini dengan penyuluh pertanian untuk penanganan lanjutan.</p>
     </div>
 </body>
 </html>

@@ -14,8 +14,8 @@ VPS_PORT      = 15188
 VPS_USER      = "ubuntu"
 VPS_PASSWORD  = "mio@VPS"       # fallback jika sshpass tersedia
 REMOTE_DIR    = "/var/www/ngingu"
-CONTAINER     = "ngingu-be"
-DOMAIN        = "ngingu.duvi.asia"
+CONTAINER     = "melak-be"
+DOMAIN        = "com.melak.app"
 # ================================================
 
 def has_sshpass():

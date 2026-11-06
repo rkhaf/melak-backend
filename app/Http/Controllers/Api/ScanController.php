@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessScanJob;
-use App\Models\FishScan;
-use App\Models\UserPond;
+use App\Models\PlantScan;
+use App\Models\UserGarden;
 use App\Support\ImageStorage;
 use App\Support\KecamatanResolver;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -29,8 +29,8 @@ class ScanController extends Controller
         $data = $request->validate([
             'images' => 'required|array|min:1|max:5',
             'images.*' => 'file|image|mimes:jpeg,jpg,png,webp|max:10240',
-            'fish_type' => 'nullable|string|max:64',
-            'pond_id' => ['nullable', 'uuid', Rule::exists('user_ponds', 'id')->where('user_id', $request->user()->id)],
+            'plant_type' => 'nullable|string|max:64',
+            'garden_id' => ['nullable', 'uuid', Rule::exists('user_gardens', 'id')->where('user_id', $request->user()->id)],
             'symptoms_desc' => 'nullable|string|max:1000',
             'location_lat' => 'nullable|numeric|between:-90,90',
             'location_lng' => 'nullable|numeric|between:-180,180',
@@ -41,25 +41,25 @@ class ScanController extends Controller
             'images.*.image' => 'File harus berupa gambar.',
             'images.*.mimes' => 'Format gambar harus JPG, PNG, atau WEBP.',
             'images.*.max' => 'Ukuran maksimal 10 MB per foto.',
-            'pond_id.exists' => 'Kolam tidak ditemukan.',
+            'garden_id.exists' => 'Kebun tidak ditemukan.',
         ]);
 
         // Lokasi kecamatan untuk peta sebaran: koordinat GPS scan lebih dulu,
-        // fallback ke koordinat kolam. Tanpa keduanya → kecamatan null
+        // fallback ke koordinat kebun. Tanpa keduanya → kecamatan null
         // (titik tetap tampil di heatmap lewat kolom ini setelah backfill).
         $lat = isset($data['location_lat']) ? (float) $data['location_lat'] : null;
         $lng = isset($data['location_lng']) ? (float) $data['location_lng'] : null;
 
-        if ($lat === null && $lng === null && ! empty($data['pond_id'])) {
-            $pond = UserPond::find($data['pond_id']);
-            $lat = $pond?->location_lat !== null ? (float) $pond->location_lat : null;
-            $lng = $pond?->location_lng !== null ? (float) $pond->location_lng : null;
+        if ($lat === null && $lng === null && ! empty($data['garden_id'])) {
+            $garden = UserGarden::find($data['garden_id']);
+            $lat = $garden?->location_lat !== null ? (float) $garden->location_lat : null;
+            $lng = $garden?->location_lng !== null ? (float) $garden->location_lng : null;
         }
 
-        $scan = FishScan::create([
+        $scan = PlantScan::create([
             'user_id' => $request->user()->id,
-            'pond_id' => $data['pond_id'] ?? null,
-            'fish_type' => $data['fish_type'] ?? null,
+            'garden_id' => $data['garden_id'] ?? null,
+            'plant_type' => $data['plant_type'] ?? null,
             'symptoms_desc' => $data['symptoms_desc'] ?? null,
             'location_lat' => $data['location_lat'] ?? null,
             'location_lng' => $data['location_lng'] ?? null,
@@ -95,18 +95,18 @@ class ScanController extends Controller
     {
         $data = $request->validate([
             'per_page' => 'sometimes|integer|min:1|max:100',
-            'pond_id' => 'sometimes|uuid',
-            'fish_type' => 'sometimes|string|max:64',
+            'garden_id' => 'sometimes|uuid',
+            'plant_type' => 'sometimes|string|max:64',
             'disease_id' => 'sometimes|integer',
             'from' => 'sometimes|date',
             'to' => 'sometimes|date',
         ]);
 
-        $query = FishScan::query()
+        $query = PlantScan::query()
             ->where('user_id', $request->user()->id)
-            ->with(['pond:id,name', 'result.disease:id,name,slug,severity', 'images'])
-            ->when(! empty($data['pond_id']), fn ($q) => $q->where('pond_id', $data['pond_id']))
-            ->when(! empty($data['fish_type']), fn ($q) => $q->where('fish_type', $data['fish_type']))
+            ->with(['garden:id,name', 'result.disease:id,name,slug,severity', 'images'])
+            ->when(! empty($data['garden_id']), fn ($q) => $q->where('garden_id', $data['garden_id']))
+            ->when(! empty($data['plant_type']), fn ($q) => $q->where('plant_type', $data['plant_type']))
             ->when(! empty($data['disease_id']), fn ($q) => $q->whereHas('result', fn ($r) => $r->where('disease_id', $data['disease_id'])))
             ->when(! empty($data['from']), fn ($q) => $q->where('created_at', '>=', $data['from']))
             ->when(! empty($data['to']), fn ($q) => $q->where('created_at', '<=', $data['to']))
@@ -114,7 +114,7 @@ class ScanController extends Controller
 
         $page = $query->paginate((int) ($data['per_page'] ?? 15))->withQueryString();
 
-        return $this->paginated($page->through(fn (FishScan $scan) => $this->listPayload($scan)));
+        return $this->paginated($page->through(fn (PlantScan $scan) => $this->listPayload($scan)));
     }
 
     /**
@@ -122,7 +122,7 @@ class ScanController extends Controller
      */
     public function show(Request $request, string $id): JsonResponse
     {
-        $scan = FishScan::with(['pond:id,name', 'result.disease:id,name,slug,severity', 'images'])
+        $scan = PlantScan::with(['garden:id,name', 'result.disease:id,name,slug,severity', 'images'])
             ->find($id);
 
         if (! $scan) {
@@ -160,7 +160,7 @@ class ScanController extends Controller
      */
     public function destroy(Request $request, string $id): Response
     {
-        $scan = FishScan::find($id);
+        $scan = PlantScan::find($id);
 
         if (! $scan) {
             return $this->fail('Scan tidak ditemukan.', 404);
@@ -188,19 +188,19 @@ class ScanController extends Controller
             'format' => 'sometimes|in:csv,pdf',
             'from' => 'sometimes|date',
             'to' => 'sometimes|date',
-            'pond_id' => 'sometimes|uuid',
+            'garden_id' => 'sometimes|uuid',
         ]);
 
-        $scans = FishScan::query()
+        $scans = PlantScan::query()
             ->where('user_id', $request->user()->id)
-            ->with(['pond:id,name', 'result.disease:id,name,severity'])
-            ->when(! empty($data['pond_id']), fn ($q) => $q->where('pond_id', $data['pond_id']))
+            ->with(['garden:id,name', 'result.disease:id,name,severity'])
+            ->when(! empty($data['garden_id']), fn ($q) => $q->where('garden_id', $data['garden_id']))
             ->when(! empty($data['from']), fn ($q) => $q->where('created_at', '>=', $data['from']))
             ->when(! empty($data['to']), fn ($q) => $q->where('created_at', '<=', $data['to']))
             ->orderByDesc('created_at')
             ->get();
 
-        $rows = $scans->map(fn (FishScan $scan) => $this->exportRow($scan))->values();
+        $rows = $scans->map(fn (PlantScan $scan) => $this->exportRow($scan))->values();
 
         if (($data['format'] ?? 'csv') === 'pdf') {
             $pdf = Pdf::loadView('scans.pdf.history', [
@@ -213,13 +213,13 @@ class ScanController extends Controller
 
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['tanggal', 'kolam', 'jenis_ikan', 'penyakit', 'confidence', 'tingkat', 'tindakan']);
+            fputcsv($out, ['tanggal', 'kebun', 'jenis_tanaman', 'penyakit', 'confidence', 'tingkat', 'tindakan']);
 
             foreach ($rows as $row) {
                 fputcsv($out, [
                     $row['tanggal'],
-                    $row['kolam'],
-                    $row['jenis_ikan'],
+                    $row['kebun'],
+                    $row['jenis_tanaman'],
                     $row['penyakit'],
                     $row['confidence'],
                     $row['tingkat'],
@@ -238,7 +238,7 @@ class ScanController extends Controller
      */
     public function exportPdf(Request $request, string $id): Response
     {
-        $scan = FishScan::with(['pond:id,name', 'result.disease', 'images'])->find($id);
+        $scan = PlantScan::with(['garden:id,name', 'result.disease', 'images'])->find($id);
 
         if (! $scan) {
             return $this->fail('Scan tidak ditemukan.', 404);
@@ -260,15 +260,15 @@ class ScanController extends Controller
         return $pdf->download('hasil-scan-'.$scan->id.'.pdf');
     }
 
-    private function listPayload(FishScan $scan): array
+    private function listPayload(PlantScan $scan): array
     {
         $primary = $scan->images->firstWhere('is_primary') ?? $scan->images->first();
 
         return [
             'scan_id' => $scan->id,
             'thumbnail_url' => $primary ? $this->storage->url($this->storage->thumbKey($primary->s3_key)) : null,
-            'fish_type' => $scan->fish_type,
-            'pond' => $scan->pond ? ['id' => $scan->pond->id, 'name' => $scan->pond->name] : null,
+            'plant_type' => $scan->plant_type,
+            'garden' => $scan->garden ? ['id' => $scan->garden->id, 'name' => $scan->garden->name] : null,
             'disease' => $scan->result?->disease ? [
                 'id' => $scan->result->disease->id,
                 'name' => $scan->result->disease->name,
@@ -281,7 +281,7 @@ class ScanController extends Controller
         ];
     }
 
-    private function detailPayload(FishScan $scan, bool $gradcam): array
+    private function detailPayload(PlantScan $scan, bool $gradcam): array
     {
         $result = $scan->result;
         $disease = $result?->disease;
@@ -289,8 +289,8 @@ class ScanController extends Controller
         $payload = [
             'scan_id' => $scan->id,
             'status' => $scan->status,
-            'fish_type' => $scan->fish_type,
-            'pond' => $scan->pond ? ['id' => $scan->pond->id, 'name' => $scan->pond->name] : null,
+            'plant_type' => $scan->plant_type,
+            'garden' => $scan->garden ? ['id' => $scan->garden->id, 'name' => $scan->garden->name] : null,
             'images' => $scan->images->map(fn ($image) => [
                 'url' => $image->s3_url,
                 'is_primary' => (bool) $image->is_primary,
@@ -336,15 +336,15 @@ class ScanController extends Controller
         return $payload;
     }
 
-    private function exportRow(FishScan $scan): array
+    private function exportRow(PlantScan $scan): array
     {
         $disease = $scan->result?->disease;
         $confidence = $scan->result?->confidence_score;
 
         return [
             'tanggal' => $scan->created_at?->format('d/m/Y H:i'),
-            'kolam' => $scan->pond?->name ?? '-',
-            'jenis_ikan' => $scan->fish_type ?? '-',
+            'kebun' => $scan->garden?->name ?? '-',
+            'jenis_tanaman' => $scan->plant_type ?? '-',
             'penyakit' => $disease?->name ?? ($scan->status === 'failed' ? 'Gagal' : 'Belum selesai'),
             'confidence' => $confidence !== null ? number_format((float) $confidence, 1).'%' : '-',
             'tingkat' => $disease?->severity ?? '-',

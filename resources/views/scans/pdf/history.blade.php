@@ -25,8 +25,8 @@
         <table>
             <tr>
                 <th>Tanggal</th>
-                <th>Kolam</th>
-                <th>Jenis Ikan</th>
+                <th>Kebun</th>
+                <th>Jenis Tanaman</th>
                 <th>Penyakit</th>
                 <th>Confidence</th>
                 <th>Tingkat</th>
@@ -35,8 +35,8 @@
             @forelse ($rows as $row)
                 <tr>
                     <td>{{ $row['tanggal'] }}</td>
-                    <td>{{ $row['kolam'] }}</td>
-                    <td>{{ $row['jenis_ikan'] }}</td>
+                    <td>{{ $row['kebun'] }}</td>
+                    <td>{{ $row['jenis_tanaman'] }}</td>
                     <td>{{ $row['penyakit'] }}</td>
                     <td>{{ $row['confidence'] }}</td>
                     <td>{{ $row['tingkat'] }}</td>

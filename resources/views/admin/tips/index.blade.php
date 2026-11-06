@@ -6,7 +6,7 @@
 @section('content')
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
-        <h3 class="text-lg font-extrabold text-[#1F2937]">Tips Budidaya Ikan</h3>
+        <h3 class="text-lg font-extrabold text-[#1F2937]">Tips Budidaya Tanaman</h3>
         <p class="text-sm text-gray-400">Kelola konten tips yang dirotasi harian oleh sistem (FR-06.5)</p>
     </div>
     <a href="{{ route('admin.tips.create') }}" class="bg-[#0F767E] hover:bg-[#0a5258] text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2">

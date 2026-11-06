@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
 use App\Notifications\ScanResult as ScanResultNotification;
 use App\Services\MlClient;
@@ -34,7 +34,7 @@ class ProcessScanJob implements ShouldQueue
 
     public function handle(MlClient $ml): void
     {
-        $scan = FishScan::find($this->scanId);
+        $scan = PlantScan::find($this->scanId);
 
         if (! $scan || $scan->isFinished()) {
             return;
@@ -46,7 +46,7 @@ class ProcessScanJob implements ShouldQueue
             $prediction = $ml->predict(
                 $scan->id,
                 $scan->images()->pluck('s3_key')->all(),
-                $scan->fish_type,
+                $scan->plant_type,
             );
         } catch (MlException $e) {
             $scan->update([
@@ -105,7 +105,7 @@ class ProcessScanJob implements ShouldQueue
     /**
      * GradCAM disimpan di foto utama — dipakai ScanController saat ?gradcam=1 (FR-10.8).
      */
-    private function storeGradcam(FishScan $scan, ?string $gradcamUrl): void
+    private function storeGradcam(PlantScan $scan, ?string $gradcamUrl): void
     {
         if ($gradcamUrl === null) {
             return;
@@ -130,7 +130,7 @@ class ProcessScanJob implements ShouldQueue
             ->first();
     }
 
-    private function notify(FishScan $scan, ?Disease $disease, float $confidence, ?string $gradcamUrl): void
+    private function notify(PlantScan $scan, ?Disease $disease, float $confidence, ?string $gradcamUrl): void
     {
         $name = $disease?->name ?? 'Tidak diketahui';
 

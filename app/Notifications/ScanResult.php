@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Support\Unsubscribe;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -20,7 +20,7 @@ class ScanResult extends Notification
     use Queueable;
 
     public function __construct(
-        public readonly FishScan $scan,
+        public readonly PlantScan $scan,
         public readonly ?Disease $disease = null,
         public readonly float $confidence = 0,
     ) {}

@@ -105,7 +105,7 @@ class ForumController extends Controller
             'tags.*' => 'string|max:30',
             'image_urls' => 'sometimes|array|max:5',
             'image_urls.*' => 'url|max:500',
-            'linked_scan_id' => ['sometimes', 'uuid', Rule::exists('fish_scans', 'id')->where('user_id', $request->user()->id)],
+            'linked_scan_id' => ['sometimes', 'uuid', Rule::exists('plant_scans', 'id')->where('user_id', $request->user()->id)],
         ], [
             'type.required' => 'Jenis post wajib dipilih.',
             'type.in' => 'Jenis post tidak valid.',

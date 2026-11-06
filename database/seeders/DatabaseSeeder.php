@@ -19,8 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(HelpSeeder::class);
 
-        // 11 kelas output model ViT → tabel diseases (FR-10.11).
-        $this->call(DiseaseSeeder::class);
+        $this->call(PlantDiseaseSeeder::class);
 
         // Kategori forum komunitas
         $this->call(ForumCategorySeeder::class);

@@ -7,7 +7,7 @@
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
         <h3 class="text-lg font-extrabold text-[#1F2937]">Ensiklopedia Penyakit</h3>
-        <p class="text-sm text-gray-400">Kelola data penyakit ikan beserta panduan pengobatan & pencegahan (FR-09.2.1)</p>
+        <p class="text-sm text-gray-400">Kelola data penyakit tanaman beserta panduan pengobatan & pencegahan (FR-09.2.1)</p>
     </div>
     <a href="{{ route('admin.diseases.create') }}" class="bg-[#0F767E] hover:bg-[#0a5258] text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2">
         <i class="fa-solid fa-plus"></i> Tambah Penyakit

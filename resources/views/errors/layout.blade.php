@@ -49,7 +49,7 @@
             </button>
         </div>
 
-        <p class="mt-10 text-[10px] text-white/30 uppercase tracking-widest font-bold">Melak · Deteksi Penyakit Ikan</p>
+        <p class="mt-10 text-[10px] text-white/30 uppercase tracking-widest font-bold">Melak · Deteksi Penyakit Tanaman</p>
     </div>
 </body>
 </html>

@@ -72,7 +72,7 @@ class SyncLabelMap extends Command
         }
 
         if ($missing !== []) {
-            $this->error('Slug berikut tidak ada di tabel diseases — jalankan `php artisan db:seed --class=DiseaseSeeder`:');
+            $this->error('Slug berikut tidak ada di tabel diseases — jalankan `php artisan db:seed --class=PlantDiseaseSeeder`:');
             $this->line('  - '.implode("\n  - ", $missing));
 
             return self::FAILURE;

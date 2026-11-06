@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\OutbreakAlert;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use App\Notifications\WeeklyDigest;
 use App\Support\Notifier;
 use Illuminate\Console\Command;
@@ -22,7 +22,7 @@ class DigestWeekly extends Command
 {
     protected $signature = 'digest:weekly';
 
-    protected $description = 'Kirim ringkasan mingguan (scan, kolam, wabah) ke pengguna aktif';
+    protected $description = 'Kirim ringkasan mingguan (scan, kebun, wabah) ke pengguna aktif';
 
     public function handle(): int
     {
@@ -31,7 +31,7 @@ class DigestWeekly extends Command
         $sent = 0;
 
         User::where('is_active', true)->lazy(200)->each(function (User $user) use ($since, $period, &$sent) {
-            $scans = FishScan::where('user_id', $user->id)
+            $scans = PlantScan::where('user_id', $user->id)
                 ->where('created_at', '>=', $since)
                 ->count();
 
@@ -43,20 +43,20 @@ class DigestWeekly extends Command
                 return;
             }
 
-            $ponds = UserPond::where('user_id', $user->id)->count();
+            $gardens = UserGarden::where('user_id', $user->id)->count();
 
             Notifier::send(
                 $user,
                 'weekly',
                 'Ringkasan mingguan '.$period,
                 sprintf(
-                    'Minggu ini Anda membuat %d scan; %d kolam terdaftar; %d alert wabah aktif di wilayah Anda.',
+                    'Minggu ini Anda membuat %d scan; %d kebun terdaftar; %d alert wabah aktif di wilayah Anda.',
                     $scans,
-                    $ponds,
+                    $gardens,
                     $outbreaks,
                 ),
-                ['period' => $period, 'scans' => $scans, 'ponds' => $ponds, 'outbreaks' => $outbreaks],
-                fn () => $user->notify(new WeeklyDigest($period, $scans, $ponds, $outbreaks)),
+                ['period' => $period, 'scans' => $scans, 'gardens' => $gardens, 'outbreaks' => $outbreaks],
+                fn () => $user->notify(new WeeklyDigest($period, $scans, $gardens, $outbreaks)),
             );
 
             $sent++;

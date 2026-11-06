@@ -4,7 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Jobs\ProcessScanJob;
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -29,13 +29,13 @@ class ScanTest extends TestCase
     {
         $images = [];
         for ($i = 0; $i < $count; $i++) {
-            $images[] = UploadedFile::fake()->image("ikan-{$i}.jpg", 640, 480);
+            $images[] = UploadedFile::fake()->image("tanaman-{$i}.jpg", 640, 480);
         }
 
         return array_merge([
             'images' => $images,
-            'fish_type' => 'Lele',
-            'symptoms_desc' => 'Bintik putih pada insang',
+            'plant_type' => 'Tomat',
+            'symptoms_desc' => 'Bercak gelap pada daun',
         ], $overrides);
     }
 
@@ -51,7 +51,7 @@ class ScanTest extends TestCase
             ->assertJsonPath('data.estimated_seconds', 10);
 
         $scanId = $response->json('data.scan_id');
-        $scan = FishScan::find($scanId);
+        $scan = PlantScan::find($scanId);
 
         $this->assertNotNull($scan);
         $this->assertSame('done', $scan->status);
@@ -76,9 +76,9 @@ class ScanTest extends TestCase
 
     public function test_list_scans_returns_meta_and_supports_filters(): void
     {
-        $done = FishScan::factory()->for($this->user)->create(['status' => 'done']);
+        $done = PlantScan::factory()->for($this->user)->create(['status' => 'done']);
         $done->images()->create(['s3_key' => 'scans/x/a.jpg', 's3_url' => 'http://x/a.jpg', 'is_primary' => true, 'order_index' => 0]);
-        FishScan::factory()->for(User::factory()->create())->create(['status' => 'done']);
+        PlantScan::factory()->for(User::factory()->create())->create(['status' => 'done']);
 
         $this->actingAs($this->user)
             ->getJson('/api/scans')
@@ -86,17 +86,17 @@ class ScanTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('data.0.scan_id', $done->id)
-            ->assertJsonStructure(['data' => [['scan_id', 'thumbnail_url', 'fish_type', 'pond', 'disease', 'confidence', 'status', 'created_at']]]);
+            ->assertJsonStructure(['data' => [['scan_id', 'thumbnail_url', 'plant_type', 'garden', 'disease', 'confidence', 'status', 'created_at']]]);
 
         $this->actingAs($this->user)
-            ->getJson('/api/scans?fish_type=Koi')
+            ->getJson('/api/scans?plant_type=Cabai')
             ->assertOk()
             ->assertJsonPath('meta.total', 0);
     }
 
     public function test_show_returns_payload_immediately_with_wait_zero(): void
     {
-        $scan = FishScan::factory()->for($this->user)->create(['status' => 'processing']);
+        $scan = PlantScan::factory()->for($this->user)->create(['status' => 'processing']);
 
         $response = $this->actingAs($this->user)->getJson("/api/scans/{$scan->id}?wait=0");
 
@@ -110,7 +110,7 @@ class ScanTest extends TestCase
     public function test_show_returns_full_result_when_done(): void
     {
         $disease = Disease::factory()->create();
-        $scan = FishScan::factory()->for($this->user)->create(['status' => 'processing']);
+        $scan = PlantScan::factory()->for($this->user)->create(['status' => 'processing']);
 
         ProcessScanJob::dispatchSync($scan->id);
 
@@ -122,7 +122,7 @@ class ScanTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.status', 'done')
-            ->assertJsonPath('data.fish_type', $scan->fish_type)
+            ->assertJsonPath('data.plant_type', $scan->plant_type)
             ->assertJsonPath('data.top_predictions.0.name', $disease->name)
             ->assertJsonPath('data.low_confidence_warning', false)
             ->assertJsonPath('data.model_version', 'fake-v1');
@@ -133,7 +133,7 @@ class ScanTest extends TestCase
 
     public function test_show_blocks_others_scan_and_missing_scan(): void
     {
-        $other = FishScan::factory()->for(User::factory()->create())->create(['status' => 'done']);
+        $other = PlantScan::factory()->for(User::factory()->create())->create(['status' => 'done']);
 
         $this->actingAs($this->user)
             ->getJson("/api/scans/{$other->id}?wait=0")
@@ -146,27 +146,27 @@ class ScanTest extends TestCase
 
     public function test_delete_scan_removes_data_and_files(): void
     {
-        $scan = FishScan::factory()->for($this->user)->create(['status' => 'done']);
+        $scan = PlantScan::factory()->for($this->user)->create(['status' => 'done']);
         $image = $scan->images()->create(['s3_key' => 'scans/x/b.jpg', 's3_url' => 'http://x/b.jpg', 'is_primary' => true, 'order_index' => 0]);
 
         Storage::disk('public')->put($image->s3_key, 'isi');
 
         $this->actingAs($this->user)->deleteJson("/api/scans/{$scan->id}")->assertNoContent();
 
-        $this->assertDatabaseMissing('fish_scans', ['id' => $scan->id]);
+        $this->assertDatabaseMissing('plant_scans', ['id' => $scan->id]);
         Storage::disk('public')->assertMissing($image->s3_key);
     }
 
     public function test_delete_others_scan_is_forbidden(): void
     {
-        $other = FishScan::factory()->for(User::factory()->create())->create();
+        $other = PlantScan::factory()->for(User::factory()->create())->create();
 
         $this->actingAs($this->user)->deleteJson("/api/scans/{$other->id}")->assertStatus(403);
     }
 
     public function test_export_history_as_csv(): void
     {
-        $scan = FishScan::factory()->for($this->user)->create(['status' => 'done']);
+        $scan = PlantScan::factory()->for($this->user)->create(['status' => 'done']);
         $scan->images()->create(['s3_key' => 'scans/x/c.jpg', 's3_url' => 'http://x/c.jpg', 'is_primary' => true, 'order_index' => 0]);
 
         $response = $this->actingAs($this->user)->get('/api/scans/export');
@@ -178,13 +178,13 @@ class ScanTest extends TestCase
         $response->sendContent();
         $csv = ob_get_clean();
 
-        $this->assertStringContainsString('tanggal,kolam,jenis_ikan,penyakit,confidence,tingkat,tindakan', $csv);
-        $this->assertStringContainsString((string) $scan->fish_type, $csv);
+        $this->assertStringContainsString('tanggal,kebun,jenis_tanaman,penyakit,confidence,tingkat,tindakan', $csv);
+        $this->assertStringContainsString((string) $scan->plant_type, $csv);
     }
 
     public function test_export_single_scan_as_pdf(): void
     {
-        $scan = FishScan::factory()->for($this->user)->create(['status' => 'done']);
+        $scan = PlantScan::factory()->for($this->user)->create(['status' => 'done']);
 
         $response = $this->actingAs($this->user)->get("/api/scans/{$scan->id}/export-pdf");
 

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ScanResult;
 use App\Models\User;
 use App\Notifications\ScanResult as ScanResultNotification;
@@ -24,31 +24,31 @@ class ScanWebPageTest extends TestCase
         $user = User::factory()->create();
 
         $disease = Disease::factory()->create([
-            'name' => 'White Spot',
-            'slug' => 'white-spot-web',
+            'name' => 'Bercak Bakteri pada Tomat',
+            'slug' => 'tomato-bacterial-spot-web',
             'severity' => 'berat',
-            'description' => 'Bintik putih pada tubuh ikan.',
-            'symptoms' => "Bintik putih di tubuh\nIkan menggosokkan tubuh",
+            'description' => 'Bercak gelap pada daun tomat.',
+            'symptoms' => "Bercak gelap pada daun\nDaun menguning",
         ]);
         $disease->treatments()->create([
             'step_order' => 1,
-            'title' => 'Naikkan suhu air',
-            'description' => 'Suhu 30°C',
+            'title' => 'Buang daun bergejala',
+            'description' => 'Pangkas dan buang daun terinfeksi.',
             'duration_days' => 5,
         ]);
-        $disease->preventions()->create(['step_order' => 1, 'description' => 'Karantina ikan baru.']);
+        $disease->preventions()->create(['step_order' => 1, 'description' => 'Gunakan benih sehat.']);
 
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
             'status' => 'done',
-            'fish_type' => 'Lele',
+            'plant_type' => 'Tomat',
         ]);
 
         ScanResult::create([
             'scan_id' => $scan->id,
             'disease_id' => $disease->id,
             'confidence_score' => 88.5,
-            'top_predictions' => [['name' => 'White Spot', 'confidence' => 88.5]],
+            'top_predictions' => [['name' => 'Bercak Bakteri pada Tomat', 'confidence' => 88.5]],
             'low_confidence_warning' => false,
             'model_version' => 'v1',
         ]);
@@ -70,8 +70,8 @@ class ScanWebPageTest extends TestCase
         // Link dari email → halaman web yang bisa dibaca manusia.
         $this->get($mail->actionUrl)
             ->assertOk()
-            ->assertSee('White Spot')
-            ->assertSee('Naikkan suhu air');
+            ->assertSee('Bercak Bakteri pada Tomat')
+            ->assertSee('Buang daun bergejala');
     }
 
     public function test_page_renders_scan_info_result_and_guides(): void
@@ -82,7 +82,7 @@ class ScanWebPageTest extends TestCase
             ->assertOk()
             ->assertSee('Hasil Prediksi')
             ->assertSee('88.5%')
-            ->assertSee('Lele')
+            ->assertSee('Tomat')
             ->assertSee('Informasi Scan')
             ->assertSee('Pencegahan')
             ->assertDontSee('/api/scans');
@@ -103,7 +103,7 @@ class ScanWebPageTest extends TestCase
     public function test_failed_scan_shows_error_banner(): void
     {
         $user = User::factory()->create();
-        $scan = FishScan::factory()->failed()->create([
+        $scan = PlantScan::factory()->failed()->create([
             'user_id' => $user->id,
             'error_message' => 'Gambar tidak terbaca.',
         ]);

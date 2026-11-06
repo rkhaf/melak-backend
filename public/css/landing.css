@@ -500,7 +500,7 @@ body.show-all-faq .faq-extra { display: block; }
 /* ── Footer gradasi membulat ───────────────────────────────── */
 .footer {
   margin-top: clamp(2rem, 5vw, 3.5rem);
-  background: linear-gradient(160deg, #0EA5E9 0%, #0369A1 55%, #075985 100%);
+  background: linear-gradient(160deg, var(--primary) 0%, var(--primary-deep) 55%,var(--primary-dark) 100%);
   color: #fff; border-radius: 56px 56px 0 0;
   padding: clamp(3rem, 6vw, 4.6rem) 0 1.6rem;
 }

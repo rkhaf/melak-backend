@@ -33,7 +33,7 @@ echo 'base_url : '.config('ngingu.ml.base_url')."\n";
 echo "disk     : {$disk}\n\n";
 
 // ── kasus 1: satu foto ──────────────────────────────────────────────
-$source = $argv[1] ?? 'C:\Users\REDMI\AppData\Local\Temp\opencode\ikan_test.jpg';
+$source = $argv[1] ?? 'C:\Users\REDMI\AppData\Local\Temp\opencode\tanaman_test.jpg';
 $key = 'e2e/single-'.uniqid().'.jpg';
 Storage::disk($disk)->put($key, file_get_contents($source));
 
@@ -42,7 +42,7 @@ echo "== 1 foto ({$key}) ==\n";
 $start = microtime(true);
 
 try {
-    $result = app(MlClient::class)->predict('e2e-scan', [$key], 'Lele');
+    $result = app(MlClient::class)->predict('e2e-scan', [$key], 'Tomat');
 } catch (MlException $e) {
     echo "GAGAL: [{$e->errorCode}] {$e->getMessage()} (HTTP {$e->getCode()})\n";
     exit(1);
@@ -110,7 +110,7 @@ echo "\n";
 $uploaded = new UploadedFile($source, basename($source), 'image/jpeg', null, true);
 
 $probeStart = microtime(true);
-$probeResult = $probe->predict($uploaded, 'Lele', false);
+$probeResult = $probe->predict($uploaded, 'Tomat', false);
 
 printf("waktu    : %.1f detik\n", microtime(true) - $probeStart);
 echo 'endpoint : '.$probeResult['endpoint']." (driver {$probeResult['driver']})\n";

@@ -3,8 +3,8 @@
 ## `kecamatan_indramayu.geojson`
 
 Polygon batas **31 kecamatan Kabupaten Indramayu** dipakai `app/Support/KecamatanResolver.php`
-untuk memetakan koordinat GPS scan → nama kecamatan (kolom `fish_scans.kecamatan`),
-yang menjadi dasar agregasi peta sebaran per kecamatan (FR-07.3, API.md §7.11/§7.13).
+untuk memetakan koordinat GPS scan → nama kecamatan (kolom `plant_scans.kecamatan`),
+yang menjadi dasar agregasi peta sebaran per kecamatan.
 
 - **Sumber data:** [Alf-Anas/batas-administrasi-indonesia](https://github.com/Alf-Anas/batas-administrasi-indonesia),
   file `2020/Batas Kecamatan SHP.zip` (batas administrasi Indonesia, atribut
@@ -18,5 +18,5 @@ yang menjadi dasar agregasi peta sebaran per kecamatan (FR-07.3, API.md §7.11/�
   python scripts/extract_kecamatan_geojson.py <path/Batas Kecamatan SHP.zip>
   ```
 
-File ini hanya menentukan *label kecamatan* untuk akumulasi kasus; koordinat titik scan
-di endpoint peta tidak pernah disederhanakan (tetap 6 desimal).
+File ini hanya menentukan *label kecamatan* untuk akumulasi kasus tanaman; koordinat
+titik scan di endpoint peta tidak pernah disederhanakan (tetap 6 desimal).

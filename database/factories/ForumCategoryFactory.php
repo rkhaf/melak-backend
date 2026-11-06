@@ -21,7 +21,7 @@ class ForumCategoryFactory extends Factory
             'Pengobatan & Perawatan',
             'Kualitas Air',
             'Pakan & Nutrisi',
-            'Kolam & Pemeliharaan',
+            'Kebun & Pemeliharaan',
             'Budidaya Pemula',
         ]);
 

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Disease;
-use App\Models\DiseaseFishType;
+use App\Models\DiseasePlantType;
 use App\Models\DiseaseImage;
 use App\Models\DiseasePrevention;
 use App\Models\DiseaseTreatment;
@@ -17,47 +17,47 @@ class DiseaseTest extends TestCase
     private function fullDisease(): Disease
     {
         $disease = Disease::factory()->create([
-            'name' => 'White Spot (Ich)',
-            'name_en' => 'White Spot',
-            'slug' => 'white-spot-ich',
-            'category' => 'parasite',
+            'name' => 'Bercak Bakteri pada Tomat',
+            'name_en' => 'Tomato Bacterial Spot',
+            'slug' => 'tomato-bacterial-spot',
+            'category' => 'bacteria',
             'severity' => 'berat',
-            'description' => 'Penyakit parasit yang menyebabkan bintik putih pada tubuh ikan.',
-            'causes' => 'Parasit Ichthyophthirius multifiliis.',
-            'symptoms' => "Bintik putih seperti garam di kulit & sirip\nIkan menggosokkan badan ke dinding kolam\nNafsu makan menurun",
+            'description' => 'Penyakit bakteri yang menyebabkan bercak pada daun tomat.',
+            'causes' => 'Bakteri Xanthomonas.',
+            'symptoms' => "Bercak gelap pada daun\nDaun menguning\nBercak kasar pada buah",
             'recovery_days_min' => 5,
             'recovery_days_max' => 14,
         ]);
 
-        DiseaseFishType::create(['disease_id' => $disease->id, 'fish_type' => 'Lele']);
-        DiseaseFishType::create(['disease_id' => $disease->id, 'fish_type' => 'Nila']);
-        DiseaseImage::create(['disease_id' => $disease->id, 's3_url' => 'https://cdn.melak.id/diseases/ich-1.webp', 'caption' => 'Bintik putih', 'is_primary' => true, 'order_index' => 0]);
-        DiseaseTreatment::create(['disease_id' => $disease->id, 'step_order' => 1, 'title' => 'Pisahkan ikan yang terinfeksi', 'description' => 'Pindahkan ke kolam karantina.', 'medicines' => [], 'duration_days' => 1]);
-        DiseaseTreatment::create(['disease_id' => $disease->id, 'step_order' => 2, 'title' => 'Pemberian garam', 'description' => '3 ppt garam ikan.', 'medicines' => [['name' => 'Garam ikan', 'dose' => '3 gram / liter', 'frequency' => '1x sehari']], 'duration_days' => 5]);
-        DiseasePrevention::create(['disease_id' => $disease->id, 'step_order' => 1, 'description' => 'Karantina ikan baru minimal 7 hari']);
+        DiseasePlantType::create(['disease_id' => $disease->id, 'plant_type' => 'Tomat']);
+        DiseasePlantType::create(['disease_id' => $disease->id, 'plant_type' => 'Jagung']);
+        DiseaseImage::create(['disease_id' => $disease->id, 's3_url' => 'https://cdn.melak.id/diseases/tomato-spot.webp', 'caption' => 'Bercak daun tomat', 'is_primary' => true, 'order_index' => 0]);
+        DiseaseTreatment::create(['disease_id' => $disease->id, 'step_order' => 1, 'title' => 'Buang bagian yang terinfeksi', 'description' => 'Pangkas daun dan buah bergejala.', 'medicines' => [], 'duration_days' => 1]);
+        DiseaseTreatment::create(['disease_id' => $disease->id, 'step_order' => 2, 'title' => 'Kurangi kelembapan daun', 'description' => 'Siram di pangkal tanaman.', 'medicines' => [], 'duration_days' => 5]);
+        DiseasePrevention::create(['disease_id' => $disease->id, 'step_order' => 1, 'description' => 'Gunakan benih sehat dan bersihkan alat kebun.']);
 
-        return $disease->fresh(['images', 'fishTypes', 'treatments', 'preventions']);
+        return $disease->fresh(['images', 'plantTypes', 'treatments', 'preventions']);
     }
 
     public function test_list_diseases_with_filters_and_meta(): void
     {
         $this->fullDisease();
-        Disease::factory()->create(['category' => 'bacteria', 'severity' => 'ringan', 'name' => 'Aeromonas', 'slug' => 'aeromonas']);
+        Disease::factory()->create(['category' => 'fungi', 'severity' => 'ringan', 'name' => 'Alternaria', 'slug' => 'alternaria']);
         Disease::factory()->create(['is_published' => false, 'name' => 'Draft', 'slug' => 'draft']);
 
         $this->getJson('/api/diseases')
             ->assertOk()
             ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('data.0.name', 'Aeromonas')
-            ->assertJsonStructure(['data' => [['id', 'name', 'slug', 'category', 'severity', 'thumbnail_url', 'fish_types', 'recovery_days']]]);
+            ->assertJsonPath('data.0.name', 'Alternaria')
+            ->assertJsonStructure(['data' => [['id', 'name', 'slug', 'category', 'severity', 'thumbnail_url', 'plant_types', 'recovery_days']]]);
 
-        $this->getJson('/api/diseases?category=parasite')
+        $this->getJson('/api/diseases?category=bacteria')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.slug', 'white-spot-ich')
-            ->assertJsonPath('data.0.thumbnail_url', 'https://cdn.melak.id/diseases/ich-1.webp');
+            ->assertJsonPath('data.0.slug', 'tomato-bacterial-spot')
+            ->assertJsonPath('data.0.thumbnail_url', 'https://cdn.melak.id/diseases/tomato-spot.webp');
 
-        $this->getJson('/api/diseases?fish_type=Lele')
+        $this->getJson('/api/diseases?plant_type=Tomat')
             ->assertOk()
             ->assertJsonPath('meta.total', 1);
 
@@ -70,20 +70,20 @@ class DiseaseTest extends TestCase
     {
         $this->fullDisease();
 
-        $response = $this->getJson('/api/diseases/white-spot-ich');
-
-        $response->assertOk()
-            ->assertJsonPath('data.name', 'White Spot (Ich)')
+        $response = $this->getJson('/api/diseases/tomato-bacterial-spot')
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Bercak Bakteri pada Tomat')
             ->assertJsonPath('data.severity', 'berat')
-            ->assertJsonPath('data.symptoms.0', 'Bintik putih seperti garam di kulit & sirip')
-            ->assertJsonPath('data.fish_types.0', 'Lele')
-            ->assertJsonPath('data.images.0.url', 'https://cdn.melak.id/diseases/ich-1.webp')
-            ->assertJsonPath('data.treatments.0.title', 'Pisahkan ikan yang terinfeksi')
-            ->assertJsonPath('data.treatments.1.medicines.0.name', 'Garam ikan')
-            ->assertJsonPath('data.preventions.0', 'Karantina ikan baru minimal 7 hari')
+            ->assertJsonPath('data.symptoms.0', 'Bercak gelap pada daun')
+            ->assertJsonPath('data.images.0.url', 'https://cdn.melak.id/diseases/tomato-spot.webp')
+            ->assertJsonPath('data.treatments.0.title', 'Buang bagian yang terinfeksi')
+            ->assertJsonPath('data.treatments.1.medicines', [])
+            ->assertJsonPath('data.preventions.0', 'Gunakan benih sehat dan bersihkan alat kebun.')
             ->assertJsonPath('data.recovery_days.min', 5)
             ->assertJsonPath('data.recovery_days.max', 14)
             ->assertJsonPath('data.related_forum_posts_count', 0);
+
+        $this->assertContains('Tomat', $response->json('data.plant_types'));
     }
 
     public function test_disease_detail_404_for_unknown_slug(): void
@@ -98,34 +98,34 @@ class DiseaseTest extends TestCase
         $this->getJson('/api/diseases/'.$disease->id)
             ->assertOk()
             ->assertJsonPath('data.id', $disease->id)
-            ->assertJsonPath('data.slug', 'white-spot-ich');
+            ->assertJsonPath('data.slug', 'tomato-bacterial-spot');
     }
 
-    public function test_search_matches_name_symptoms_and_fish_type(): void
+    public function test_search_matches_name_symptoms_and_plant_type(): void
     {
         $this->fullDisease();
         Disease::factory()->create([
-            'name' => 'Saprolegnia',
-            'name_en' => 'Water Mold',
-            'slug' => 'saprolegnia',
+            'name' => 'Kapang Daun Tomat',
+            'name_en' => 'Tomato Leaf Mold',
+            'slug' => 'tomato-leaf-mold',
             'category' => 'fungi',
-            'description' => 'Jamur air putih pada kulit dan sirip.',
-            'causes' => 'Jamur Saprolegnia parasitica.',
-            'symptoms' => 'Selaput kapas berwarna putih.',
+            'description' => 'Jamur pada daun tomat.',
+            'causes' => 'Jamur Passalora fulva.',
+            'symptoms' => 'Lapisan beludru pada sisi bawah daun.',
         ]);
 
-        $this->getJson('/api/diseases/search?q=bintik')
+        $this->getJson('/api/diseases/search?q=bercak')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.slug', 'white-spot-ich')
-            ->assertJsonPath('data.0.thumbnail_url', 'https://cdn.melak.id/diseases/ich-1.webp')
+            ->assertJsonPath('data.0.slug', 'tomato-bacterial-spot')
+            ->assertJsonPath('data.0.thumbnail_url', 'https://cdn.melak.id/diseases/tomato-spot.webp')
             ->assertJsonStructure(['data' => [['id', 'name', 'slug', 'category', 'severity', 'thumbnail_url', 'snippet']]]);
 
-        $this->getJson('/api/diseases/search?q=lele')
+        $this->getJson('/api/diseases/search?q=tomat')
             ->assertOk()
-            ->assertJsonPath('meta.total', 1);
+            ->assertJsonPath('meta.total', 2);
 
-        $this->getJson('/api/diseases/search?q=saprolegnia')
+        $this->getJson('/api/diseases/search?q=kapang')
             ->assertOk()
             ->assertJsonPath('meta.total', 1);
 
@@ -136,14 +136,14 @@ class DiseaseTest extends TestCase
     public function test_similar_diseases_returns_max_four(): void
     {
         $this->fullDisease();
-        Disease::factory()->create(['category' => 'parasite', 'name' => 'Trichodina', 'slug' => 'trichodina']);
-        Disease::factory()->create(['category' => 'bacteria', 'name' => 'Columnaris', 'slug' => 'columnaris']);
+        Disease::factory()->create(['category' => 'bacteria', 'name' => 'Bercak', 'slug' => 'bercak-lain']);
+        Disease::factory()->create(['category' => 'fungi', 'name' => 'Kapang', 'slug' => 'kapang']);
 
-        $response = $this->getJson('/api/diseases/white-spot-ich/similar');
+        $response = $this->getJson('/api/diseases/tomato-bacterial-spot/similar');
 
-        $response->assertOk()->assertJsonPath('data.0.slug', 'trichodina');
+        $response->assertOk()->assertJsonPath('data.0.slug', 'bercak-lain');
         $this->assertLessThanOrEqual(4, count($response->json('data')));
-        $this->assertNotContains('white-spot-ich', array_column($response->json('data'), 'slug'));
+        $this->assertNotContains('tomato-bacterial-spot', array_column($response->json('data'), 'slug'));
     }
 
     public function test_unpublished_disease_is_not_public(): void

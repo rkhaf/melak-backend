@@ -25,14 +25,14 @@ class ModelAdminTest extends AdminTestCase
             'version' => 'v1.0.0',
             'model_file' => UploadedFile::fake()->create('model_v1.onnx', 512),
             'accuracy_pct' => 92.5,
-            'disease_labels' => "White Spot (Ich)\nColumnaris",
+            'disease_labels' => "Bercak Bakteri Tomat\nHawar Daun Jagung",
         ])->assertRedirect(route('admin.models.index'));
 
         $model = MlModel::where('version', 'v1.0.0')->firstOrFail();
 
         $this->assertFalse($model->is_active);
         $this->assertSame(92.5, $model->accuracy_pct);
-        $this->assertSame(['White Spot (Ich)', 'Columnaris'], $model->disease_labels);
+        $this->assertSame(['Bercak Bakteri Tomat', 'Hawar Daun Jagung'], $model->disease_labels);
         $this->assertSame($admin->id, $model->uploaded_by);
         Storage::disk('local')->assertExists($model->s3_path);
 
@@ -184,7 +184,7 @@ class ModelAdminTest extends AdminTestCase
         $user = $this->createRegularUser();
 
         $this->actingAs($user)->post(route('admin.models.test'), [
-            'image' => UploadedFile::fake()->image('ikan.jpg', 50, 50),
+            'image' => UploadedFile::fake()->image('tanaman.jpg', 50, 50),
         ])->assertRedirect(route('admin.login'));
 
         $this->assertNull(session('ml_test'));
@@ -196,18 +196,18 @@ class ModelAdminTest extends AdminTestCase
         Http::fake(['*' => Http::response($this->mlPayload(), 200)]);
 
         Disease::create([
-            'name' => 'Infeksi Bakteri Aeromonas (Aeromoniasis)',
-            'slug' => 'aeromoniasis',
+            'name' => 'Bercak Bakteri pada Tomat',
+            'slug' => 'tomato-bacterial-spot',
             'category' => 'bacteria',
-            'severity' => 'berat',
+            'severity' => 'sedang',
             'is_published' => true,
         ]);
 
         $admin = $this->actingAsAdmin();
 
         $this->post(route('admin.models.test'), [
-            'image' => UploadedFile::fake()->image('ikan.jpg', 300, 300),
-            'fish_type' => 'Lele',
+            'image' => UploadedFile::fake()->image('tanaman.jpg', 300, 300),
+            'plant_type' => 'Tomat',
             'gradcam' => '1',
         ])->assertRedirect();
 
@@ -219,8 +219,8 @@ class ModelAdminTest extends AdminTestCase
         $this->assertSame(200, $test['http_status']);
 
         // 1. request terekam apa adanya
-        $this->assertSame('ikan.jpg', $test['request']['filename']);
-        $this->assertSame('Lele', $test['request']['fish_type']);
+        $this->assertSame('tanaman.jpg', $test['request']['filename']);
+        $this->assertSame('Tomat', $test['request']['plant_type']);
         $this->assertTrue($test['request']['gradcam']);
 
         // 2. response mentah — base64 GradCAM dipadatkan agar session tetap ringan
@@ -228,15 +228,15 @@ class ModelAdminTest extends AdminTestCase
         $this->assertStringContainsString('data URI', $test['raw']['gradcam_image']);
 
         // 3. hasil lapisan adaptasi (yang dipakai aplikasi)
-        $this->assertSame('aeromoniasis', $test['normalized']['disease_slug']);
+        $this->assertSame('tomato-bacterial-spot', $test['normalized']['disease_slug']);
         $this->assertSame(87.3, $test['normalized']['confidence']);
-        $this->assertSame('berat', $test['normalized']['severity']);
+        $this->assertSame('sedang', $test['normalized']['severity']);
         $this->assertNotNull($test['normalized']['gradcam_url']);
 
         // 4. resolusi slug -> tabel diseases (FR-10.11)
         $this->assertTrue($test['disease']['found']);
-        $this->assertSame('Infeksi Bakteri Aeromonas (Aeromoniasis)', $test['disease']['name']);
-        $this->assertSame('aeromoniasis', $test['disease']['slug']);
+        $this->assertSame('Bercak Bakteri pada Tomat', $test['disease']['name']);
+        $this->assertSame('tomato-bacterial-spot', $test['disease']['slug']);
 
         $this->assertDatabaseHas('audit_logs', ['user_id' => $admin->id, 'action' => 'model.tested']);
 
@@ -251,7 +251,7 @@ class ModelAdminTest extends AdminTestCase
             ->assertSee('Resolusi ke tabel diseases')
             ->assertSee('data URI')
             ->assertSee('HTTP 200')
-            ->assertSee('Infeksi Bakteri Aeromonas (Aeromoniasis)');
+            ->assertSee('Bercak Bakteri pada Tomat');
     }
 
     public function test_ml_test_reports_unreachable_service_instead_of_failing(): void
@@ -267,7 +267,7 @@ class ModelAdminTest extends AdminTestCase
         $this->actingAsAdmin();
 
         $this->post(route('admin.models.test'), [
-            'image' => UploadedFile::fake()->image('ikan.jpg', 50, 50),
+            'image' => UploadedFile::fake()->image('tanaman.jpg', 50, 50),
         ])->assertRedirect();
 
         $test = session('ml_test');
@@ -316,12 +316,12 @@ class ModelAdminTest extends AdminTestCase
         config(['ngingu.ml.driver' => 'fake']);
         Http::fake();
 
-        Disease::create(['name' => 'Ikan Sehat', 'slug' => 'ikan-sehat', 'is_published' => true]);
+        Disease::create(['name' => 'Tanaman Sehat', 'slug' => 'tanaman-sehat', 'is_published' => true]);
 
         $this->actingAsAdmin();
 
         $this->post(route('admin.models.test'), [
-            'image' => UploadedFile::fake()->image('ikan.png', 50, 50),
+            'image' => UploadedFile::fake()->image('tanaman.png', 50, 50),
         ])->assertRedirect();
 
         $test = session('ml_test');
@@ -406,15 +406,15 @@ class ModelAdminTest extends AdminTestCase
 
         return [
             'disease' => [
-                'label' => 'aeromoniasis',
-                'name' => 'Infeksi Bakteri Aeromonas (Aeromoniasis)',
-                'slug' => 'aeromoniasis',
-                'severity' => 'berat',
+                'label' => 'tomato-bacterial-spot',
+                'name' => 'Bercak Bakteri pada Tomat',
+                'slug' => 'tomato-bacterial-spot',
+                'severity' => 'sedang',
             ],
             'confidence' => 87.3,
             'top_predictions' => [
-                ['label' => 'aeromoniasis', 'name' => 'Infeksi Bakteri Aeromonas (Aeromoniasis)', 'confidence' => 87.3],
-                ['label' => 'healthy', 'name' => 'Ikan Sehat', 'confidence' => 12.7],
+                ['label' => 'tomato-bacterial-spot', 'name' => 'Bercak Bakteri pada Tomat', 'confidence' => 87.3],
+                ['label' => 'healthy', 'name' => 'Tanaman Sehat', 'confidence' => 12.7],
             ],
             'low_confidence_warning' => false,
             'gradcam_image' => 'data:image/png;base64,'.base64_encode((string) $png),

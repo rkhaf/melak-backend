@@ -70,7 +70,7 @@ class AdminPanelAccessTest extends AdminTestCase
         $this->get(route('admin.diseases.index'))->assertOk()->assertSee('Ensiklopedia Penyakit');
         $this->get(route('admin.diseases.create'))->assertOk()->assertSee('Tambah Penyakit');
         $this->get(route('admin.models.index'))->assertOk()->assertSee('Manajemen Model ML');
-        $this->get(route('admin.tips.index'))->assertOk()->assertSee('Tips Budidaya Ikan');
+        $this->get(route('admin.tips.index'))->assertOk()->assertSee('Tips Budidaya Tanaman');
         $this->get(route('admin.tips.create'))->assertOk()->assertSee('Tambah Tips');
         $this->get(route('admin.settings.index'))->assertOk()->assertSee('Pengaturan Aplikasi');
         $this->get(route('admin.users.index'))->assertOk()->assertSee('Daftar Pengguna');

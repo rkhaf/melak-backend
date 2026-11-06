@@ -25,7 +25,7 @@ class NotificationTest extends TestCase
             'user_id' => $user->id,
             'type' => 'scan_result',
             'title' => 'Hasil scan siap',
-            'body' => 'White Spot (Ich) terdeteksi dengan keyakinan 87%',
+            'body' => 'Bercak Bakteri pada Tomat terdeteksi dengan keyakinan 87%',
             'data' => ['scan_id' => '6f9b2c1e-0000'],
             'read_at' => null,
         ], $overrides));
@@ -180,7 +180,7 @@ class NotificationTest extends TestCase
             $user,
             'scan_result',
             'Hasil scan siap',
-            'Prediksi: White Spot (Ich) 87%.',
+            'Prediksi: Bercak Bakteri pada Tomat 87%.',
             ['scan_id' => 1],
             fn () => throw new \RuntimeException('Connection could not be established with host "mailpit:1025"'),
         );

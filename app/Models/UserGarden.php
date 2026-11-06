@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserPond extends Model
+class UserGarden extends Model
 {
     use HasUuids;
 
@@ -20,14 +20,14 @@ class UserPond extends Model
         'location_label',
         'area_m2',
         'capacity',
-        'fish_types',
+        'plant_types',
         'health_score',
     ];
 
     protected function casts(): array
     {
         return [
-            'fish_types' => 'array',
+            'plant_types' => 'array',
             'health_score' => 'integer',
             'area_m2' => 'float',
         ];
@@ -40,6 +40,6 @@ class UserPond extends Model
 
     public function scans(): HasMany
     {
-        return $this->hasMany(FishScan::class, 'pond_id');
+        return $this->hasMany(PlantScan::class, 'garden_id');
     }
 }

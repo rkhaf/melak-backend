@@ -10,7 +10,7 @@
     <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h3 class="text-2xl font-extrabold tracking-tight">Halo, {{ Auth::user()->name }}!</h3>
-            <p class="text-white/80 text-sm mt-1">Panel Administrator Melak — prediksi penyakit ikan &amp; komunitas tambak.</p>
+            <p class="text-white/80 text-sm mt-1">Panel Administrator Melak — prediksi penyakit tanaman &amp; komunitas lahan.</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('admin.dashboard.export') }}" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
@@ -35,7 +35,7 @@
             </span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-[#E0F2F1] text-[#0F767E] flex items-center justify-center text-xl shadow-inner font-bold">
-            <i class="fa-solid fa-fish-fins"></i>
+            <i class="fa-solid fa-plant-fins"></i>
         </div>
     </div>
 

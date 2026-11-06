@@ -24,17 +24,17 @@ class AggregateOutbreaks extends Command
         $threshold = (int) ($this->option('threshold') ?: config('ngingu.outbreak.threshold', 5));
         $windowDays = (int) config('ngingu.outbreak.window_days', 7);
 
-        $rows = DB::table('fish_scans')
-            ->join('users', 'users.id', '=', 'fish_scans.user_id')
-            ->join('scan_results', 'scan_results.scan_id', '=', 'fish_scans.id')
+        $rows = DB::table('plant_scans')
+            ->join('users', 'users.id', '=', 'plant_scans.user_id')
+            ->join('scan_results', 'scan_results.scan_id', '=', 'plant_scans.id')
             ->join('diseases', 'diseases.id', '=', 'scan_results.disease_id')
-            ->where('fish_scans.status', 'done')
-            ->where('fish_scans.created_at', '>=', now()->subDays($windowDays))
+            ->where('plant_scans.status', 'done')
+            ->where('plant_scans.created_at', '>=', now()->subDays($windowDays))
             ->whereNotNull('users.province')
             ->whereNotNull('scan_results.disease_id')
             ->groupBy('users.province', 'scan_results.disease_id', 'diseases.name')
             ->select('users.province as province', 'scan_results.disease_id as disease_id', 'diseases.name as disease_name')
-            ->selectRaw('COUNT(DISTINCT fish_scans.user_id) as cases')
+            ->selectRaw('COUNT(DISTINCT plant_scans.user_id) as cases')
             ->get();
 
         $activeKeys = [];

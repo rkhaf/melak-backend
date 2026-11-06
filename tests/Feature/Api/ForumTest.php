@@ -49,12 +49,12 @@ class ForumTest extends TestCase
             'user_id' => $author->id,
             'category_id' => $category->id,
             'type' => 'question',
-            'title' => 'Ikan putih di sirip',
+            'title' => 'Bercak pada daun tomat',
             'content_html' => '<p>Bintik putih menular</p>',
         ]);
         ForumPost::whereKey($older->id)->toBase()->update(['created_at' => now()->subMinutes(30)]);
 
-        $newer = ForumPost::factory()->discussion()->create(['title' => 'Diskusi pakan']);
+        $newer = ForumPost::factory()->discussion()->create(['title' => 'Pemupukan jagung']);
         ForumPost::whereKey($newer->id)->toBase()->update(['created_at' => now()]);
 
         $this->getJson('/api/forum/posts')
@@ -64,7 +64,7 @@ class ForumTest extends TestCase
         $this->getJson('/api/forum/posts?type=question')
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.title', 'Ikan putih di sirip');
+            ->assertJsonPath('data.0.title', 'Bercak pada daun tomat');
 
         $this->getJson('/api/forum/posts?category=pengobatan')
             ->assertJsonPath('meta.total', 1);
@@ -74,7 +74,7 @@ class ForumTest extends TestCase
 
         $this->getJson('/api/forum/posts?sort=terbaru')
             ->assertOk()
-            ->assertJsonPath('data.0.title', 'Diskusi pakan');
+            ->assertJsonPath('data.0.title', 'Pemupukan jagung');
     }
 
     public function test_pending_post_is_hidden_from_guests_but_visible_to_author(): void
@@ -105,7 +105,7 @@ class ForumTest extends TestCase
         $response = $this->actingAs($newbie)->postJson('/api/forum/posts', [
             'type' => 'question',
             'title' => 'Bagaimana mengobati kembung?',
-            'content_html' => '<p>Ikan lele saya kembung sejak kemarin.</p>',
+            'content_html' => '<p>Tanaman lele saya kembung sejak kemarin.</p>',
             'category_id' => $category->id,
             'tags' => ['lele', 'kembung'],
         ]);
@@ -127,7 +127,7 @@ class ForumTest extends TestCase
 
         $this->actingAs($author)->postJson('/api/forum/posts', [
             'type' => 'discussion',
-            'title' => 'Tips menjaga kolam tetap jernih',
+            'title' => 'Tips menjaga kebun tetap jernih',
             'content_html' => '<p>Gunakan filter biofilter yang cukup.</p>',
             'category_id' => $category->id,
         ])

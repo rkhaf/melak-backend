@@ -35,9 +35,9 @@ class Disease extends Model
         ];
     }
 
-    public function fishTypes(): HasMany
+    public function plantTypes(): HasMany
     {
-        return $this->hasMany(DiseaseFishType::class);
+        return $this->hasMany(DiseasePlantType::class);
     }
 
     public function images(): HasMany

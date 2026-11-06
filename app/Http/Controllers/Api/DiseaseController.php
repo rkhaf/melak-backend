@@ -26,7 +26,7 @@ class DiseaseController extends Controller
     {
         $data = $request->validate([
             'category' => 'sometimes|in:bacteria,virus,parasite,fungi,other',
-            'fish_type' => 'sometimes|string|max:64',
+            'plant_type' => 'sometimes|string|max:64',
             'severity' => 'sometimes|in:ringan,sedang,berat,kritis',
             'q' => 'sometimes|string|max:100',
             'per_page' => 'sometimes|integer|min:1|max:100',
@@ -34,10 +34,10 @@ class DiseaseController extends Controller
 
         $query = Disease::query()
             ->published()
-            ->with(['images', 'fishTypes'])
+            ->with(['images', 'plantTypes'])
             ->when(! empty($data['category']), fn ($q) => $q->where('category', $data['category']))
             ->when(! empty($data['severity']), fn ($q) => $q->where('severity', $data['severity']))
-            ->when(! empty($data['fish_type']), fn ($q) => $q->whereHas('fishTypes', fn ($f) => $f->where('fish_type', $data['fish_type'])))
+            ->when(! empty($data['plant_type']), fn ($q) => $q->whereHas('plantTypes', fn ($f) => $f->where('plant_type', $data['plant_type'])))
             ->when(! empty($data['q']), fn ($q) => $this->applySearch($q, $data['q']))
             ->orderBy('name');
 
@@ -84,7 +84,7 @@ class DiseaseController extends Controller
         // Menerima slug (kontrak API.md §5.2) atau id numerik (dipakai klien mobile).
         $disease = Disease::query()
             ->published()
-            ->with(['images', 'fishTypes', 'treatments', 'preventions'])
+            ->with(['images', 'plantTypes', 'treatments', 'preventions'])
             ->where(function ($query) use ($key) {
                 $query->where('slug', $key);
 
@@ -107,7 +107,7 @@ class DiseaseController extends Controller
             'description' => $disease->description,
             'causes' => $disease->causes,
             'symptoms' => $this->lines($disease->symptoms),
-            'fish_types' => $disease->fishTypes->pluck('fish_type')->values()->all(),
+            'plant_types' => $disease->plantTypes->pluck('plant_type')->values()->all(),
             'images' => $disease->images->map(fn ($image) => [
                 'url' => $image->s3_url,
                 'caption' => $image->caption,
@@ -135,19 +135,19 @@ class DiseaseController extends Controller
      */
     public function similar(string $slug): JsonResponse
     {
-        $disease = Disease::query()->published()->with('fishTypes')->where('slug', $slug)->first();
+        $disease = Disease::query()->published()->with('plantTypes')->where('slug', $slug)->first();
 
         if (! $disease) {
             return $this->fail('Penyakit tidak ditemukan.', 404);
         }
 
-        $fishTypes = $disease->fishTypes->pluck('fish_type')->all();
+        $plantTypes = $disease->plantTypes->pluck('plant_type')->all();
 
         $similar = Disease::query()
             ->published()
             ->where('id', '!=', $disease->id)
             ->where(fn ($q) => $q->where('category', $disease->category)
-                ->orWhere(fn ($inner) => count($fishTypes) > 0 && $inner->whereHas('fishTypes', fn ($f) => $f->whereIn('fish_type', $fishTypes))))
+                ->orWhere(fn ($inner) => count($plantTypes) > 0 && $inner->whereHas('plantTypes', fn ($f) => $f->whereIn('plant_type', $plantTypes))))
             ->with('images')
             ->orderByRaw('CASE WHEN category = ? THEN 0 ELSE 1 END', [$disease->category])
             ->take(4)
@@ -163,7 +163,7 @@ class DiseaseController extends Controller
             ->orWhere('name_en', 'like', "%{$q}%")
             ->orWhere('description', 'like', "%{$q}%")
             ->orWhere('symptoms', 'like', "%{$q}%")
-            ->orWhereHas('fishTypes', fn ($f) => $f->where('fish_type', 'like', "%{$q}%")));
+            ->orWhereHas('plantTypes', fn ($f) => $f->where('plant_type', 'like', "%{$q}%")));
     }
 
     private function listItem(Disease $disease): array
@@ -177,7 +177,7 @@ class DiseaseController extends Controller
             'category' => $disease->category,
             'severity' => $disease->severity,
             'thumbnail_url' => $primary?->s3_url,
-            'fish_types' => $disease->fishTypes->pluck('fish_type')->values()->all(),
+            'plant_types' => $disease->plantTypes->pluck('plant_type')->values()->all(),
             'recovery_days' => [
                 'min' => $disease->recovery_days_min,
                 'max' => $disease->recovery_days_max,

@@ -42,7 +42,7 @@ class MlClientHttpTest extends TestCase
 
         Http::fake(['*' => Http::response($this->servicePayload())]);
 
-        $result = app(MlClient::class)->predict('scan-1', ['scans/scan-1/0-abc123.jpg'], 'Lele');
+        $result = app(MlClient::class)->predict('scan-1', ['scans/scan-1/0-abc123.jpg'], 'Tomat');
 
         Http::assertSent(function (Request $request) {
             return $request->method() === 'POST'
@@ -52,10 +52,10 @@ class MlClientHttpTest extends TestCase
 
         $request = Http::recorded()[0][0];
         $this->assertSame('true', $this->field($request, 'gradcam'), 'GradCAM harus diminta (FR-10.8)');
-        $this->assertSame('Lele', $this->field($request, 'fish_type'));
+        $this->assertSame('Tomat', $this->field($request, 'plant_type'));
 
         // Bentuk hasil = kontrak internal, bukan bentuk payload Python.
-        $this->assertSame('aeromoniasis', $result['disease_slug']);
+        $this->assertSame('tomato-bacterial-spot', $result['disease_slug']);
         $this->assertSame('vit-v1.0.0', $result['model_version']);
     }
 
@@ -80,7 +80,7 @@ class MlClientHttpTest extends TestCase
         });
 
         // Hasil agregasi (§10.5) yang dipakai, bukan foto pertama.
-        $this->assertSame('saprolegniasis', $result['disease_slug']);
+        $this->assertSame('maize-common-rust', $result['disease_slug']);
         $this->assertSame(74.5, $result['confidence']);
     }
 
@@ -104,7 +104,7 @@ class MlClientHttpTest extends TestCase
             'detail' => [
                 'code' => 'IMAGE_QUALITY_LOW',
                 'message' => 'Gambar terlalu blur.',
-                'suggestions' => ['Pastikan ikan terlihat jelas.'],
+                'suggestions' => ['Pastikan tanaman terlihat jelas.'],
             ],
         ], 422)]);
 
@@ -114,7 +114,7 @@ class MlClientHttpTest extends TestCase
         } catch (MlException $e) {
             $this->assertSame('IMAGE_QUALITY_LOW', $e->errorCode);
             $this->assertSame(422, $e->getCode());
-            $this->assertStringContainsString('Pastikan ikan terlihat jelas.', $e->getMessage());
+            $this->assertStringContainsString('Pastikan tanaman terlihat jelas.', $e->getMessage());
         }
     }
 
@@ -230,11 +230,11 @@ class MlClientHttpTest extends TestCase
     private function servicePayload(): array
     {
         return [
-            'disease' => ['label' => 'aeromoniasis', 'name' => 'Infeksi Bakteri Aeromonas', 'slug' => 'aeromoniasis', 'severity' => 'berat'],
+            'disease' => ['label' => 'tomato-bacterial-spot', 'name' => 'Bercak Bakteri pada Tomat', 'slug' => 'tomato-bacterial-spot', 'severity' => 'sedang'],
             'confidence' => 87.3,
             'top_predictions' => [
-                ['label' => 'aeromoniasis', 'name' => 'Infeksi Bakteri Aeromonas', 'confidence' => 87.3],
-                ['label' => 'healthy', 'name' => 'Ikan Sehat', 'confidence' => 8.4],
+                ['label' => 'tomato-bacterial-spot', 'name' => 'Bercak Bakteri pada Tomat', 'confidence' => 87.3],
+                ['label' => 'healthy', 'name' => 'Tanaman Sehat', 'confidence' => 8.4],
             ],
             'low_confidence_warning' => false,
             'gradcam_image' => null,
@@ -251,7 +251,7 @@ class MlClientHttpTest extends TestCase
                 ['disease' => ['label' => 'b', 'name' => 'B', 'slug' => 'b'], 'confidence' => 80, 'top_predictions' => [], 'model_version' => 'vit-v1.0.0'],
             ],
             'aggregated' => [
-                'disease' => ['label' => 'saprolegniasis', 'name' => 'Saprolegniasis', 'slug' => 'saprolegniasis', 'severity' => 'sedang'],
+                'disease' => ['label' => 'maize-common-rust', 'name' => 'Karat Daun Jagung', 'slug' => 'maize-common-rust', 'severity' => 'sedang'],
                 'confidence' => 74.5,
                 'best_photo_index' => 1,
             ],

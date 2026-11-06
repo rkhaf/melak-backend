@@ -3,12 +3,12 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Disease;
-use App\Models\FishScan;
+use App\Models\PlantScan;
 use App\Models\ForumFollow;
 use App\Models\ForumPost;
 use App\Models\ScanResult;
 use App\Models\User;
-use App\Models\UserPond;
+use App\Models\UserGarden;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,9 +24,9 @@ class DashboardTest extends TestCase
         return $user->refresh();
     }
 
-    private function doneScan(User $user, ?Disease $disease, array $overrides = []): FishScan
+    private function doneScan(User $user, ?Disease $disease, array $overrides = []): PlantScan
     {
-        $scan = FishScan::factory()->create([
+        $scan = PlantScan::factory()->create([
             'user_id' => $user->id,
             'status' => 'done',
             ...$overrides,
@@ -56,13 +56,13 @@ class DashboardTest extends TestCase
     public function test_dashboard_returns_stat_cards_recent_scans_and_trending_posts(): void
     {
         $user = $this->establishedUser();
-        $ich = Disease::factory()->create(['name' => 'White Spot (Ich)', 'slug' => 'white-spot-ich']);
-        $columnaris = Disease::factory()->create(['name' => 'Columnaris', 'slug' => 'columnaris']);
+        $tomatoSpot = Disease::factory()->create(['name' => 'Bercak Bakteri pada Tomat', 'slug' => 'tomato-bacterial-spot']);
+        $maizeRust = Disease::factory()->create(['name' => 'Karat Daun Jagung', 'slug' => 'maize-common-rust']);
 
-        $this->doneScan($user, $ich);
-        $this->doneScan($user, $ich);
-        $this->doneScan($user, $columnaris);
-        UserPond::create(['user_id' => $user->id, 'name' => 'Kolam A', 'health_score' => 100]);
+        $this->doneScan($user, $tomatoSpot);
+        $this->doneScan($user, $tomatoSpot);
+        $this->doneScan($user, $maizeRust);
+        UserGarden::create(['user_id' => $user->id, 'name' => 'Kebun A', 'health_score' => 100]);
         ForumPost::factory()->create(['user_id' => $user->id, 'type' => 'question', 'has_best_answer' => true]);
 
         $response = $this->actingAs($user)->getJson('/api/dashboard?period=7d');
@@ -70,7 +70,7 @@ class DashboardTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.stat_cards.total_scans', 3)
             ->assertJsonPath('data.stat_cards.diseases_detected', 2)
-            ->assertJsonPath('data.stat_cards.active_ponds', 1)
+            ->assertJsonPath('data.stat_cards.active_gardens', 1)
             ->assertJsonPath('data.stat_cards.questions_answered', 1)
             ->assertJsonStructure(['data' => ['stat_cards', 'recent_scans', 'trending_posts', 'disease_trend', 'top_disease_this_week', 'activity_feed']]);
 
@@ -79,11 +79,11 @@ class DashboardTest extends TestCase
         $diseases = array_filter(array_column($response->json('data.recent_scans'), 'disease'), fn ($d) => $d !== null);
         $names = array_unique(array_column($diseases, 'name'));
         sort($names);
-        $this->assertSame(['Columnaris', 'White Spot (Ich)'], $names);
+        $this->assertSame(['Bercak Bakteri pada Tomat', 'Karat Daun Jagung'], $names);
         $this->assertCount(7, $response->json('data.disease_trend'));
         $this->assertSame(now()->toDateString(), $response->json('data.disease_trend.6.date'));
         $this->assertSame(3, (int) $response->json('data.disease_trend.6.count'));
-        $this->assertSame('White Spot (Ich)', $response->json('data.top_disease_this_week.name'));
+        $this->assertSame('Bercak Bakteri pada Tomat', $response->json('data.top_disease_this_week.name'));
         $this->assertSame(2, (int) $response->json('data.top_disease_this_week.count'));
     }
 

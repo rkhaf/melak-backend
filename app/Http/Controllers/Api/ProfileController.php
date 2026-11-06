@@ -38,13 +38,13 @@ class ProfileController extends Controller
             'name' => 'sometimes|string|min:3|max:80',
             'bio' => 'sometimes|nullable|string|max:300',
             'province' => 'sometimes|nullable|string|max:80',
-            'fish_types' => 'sometimes|array|max:10',
-            'fish_types.*' => 'string|max:30',
+            'plant_types' => 'sometimes|array|max:10',
+            'plant_types.*' => 'string|max:30',
         ], [
             'name.min' => 'Nama minimal 3 karakter.',
             'name.max' => 'Nama maksimal 80 karakter.',
             'bio.max' => 'Bio maksimal 300 karakter.',
-            'fish_types.max' => 'Maksimal 10 jenis ikan.',
+            'plant_types.max' => 'Maksimal 10 jenis tanaman.',
         ]);
 
         $user->fill($data);
@@ -150,7 +150,7 @@ class ProfileController extends Controller
             'avatar_url' => $user->avatar_url,
             'bio' => $user->bio,
             'province' => $user->province,
-            'fish_types' => $user->fish_types ?? [],
+            'plant_types' => $user->plant_types ?? [],
             'reputation_points' => (int) $user->reputation_points,
             'reputation_level' => $user->reputation_level,
             'role' => $user->role,

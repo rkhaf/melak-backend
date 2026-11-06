@@ -89,7 +89,7 @@
             <p class="text-xs text-gray-400">{{ $user->email }}</p>
             <div class="grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-gray-100">
                 <div>
-                    <p class="text-2xl font-black text-[#0F767E]">{{ $user->fish_scans_count }}</p>
+                    <p class="text-2xl font-black text-[#0F767E]">{{ $user->plant_scans_count }}</p>
                     <p class="text-[10px] text-gray-400 uppercase font-bold">Scan</p>
                 </div>
                 <div>

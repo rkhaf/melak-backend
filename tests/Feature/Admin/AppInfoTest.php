@@ -35,7 +35,7 @@ class AppInfoTest extends AdminTestCase
 
         $this->put(route('admin.app-info.update'), [
             'app_name' => 'Melak Siaga',
-            'description' => 'Aplikasi deteksi penyakit ikan.',
+            'description' => 'Aplikasi deteksi penyakit tanaman.',
             'developer' => 'Tim Melak',
             'website' => 'https://ngingu.example.com',
             'support_email' => 'bantuan@ngingu.example.com',

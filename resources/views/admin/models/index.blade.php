@@ -112,7 +112,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1.5">Label Penyakit (satu per baris)</label>
-                    <textarea name="disease_labels" rows="4" placeholder="White Spot (Ich)&#10;Columnaris"
+                    <textarea name="disease_labels" rows="4" placeholder="Bercak Bakteri Tomat&#10;Hawar Daun Jagung"
                               class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none">{{ old('disease_labels') }}</textarea>
                 </div>
             </div>
@@ -152,9 +152,9 @@
                            class="w-full border border-dashed border-gray-300 rounded-xl px-4 py-2.5 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 file:text-[#0F767E] file:font-bold file:px-3 file:py-1.5">
                 </div>
                 <div class="md:col-span-3">
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5">Jenis ikan (opsional)</label>
-                    <input type="text" name="fish_type" maxlength="100"
-                           value="{{ old('fish_type', $testInput['fish_type'] ?? '') }}" placeholder="mis. Lele"
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5">Jenis tanaman (opsional)</label>
+                    <input type="text" name="plant_type" maxlength="100"
+                           value="{{ old('plant_type', $testInput['plant_type'] ?? '') }}" placeholder="mis. Tomat"
                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40">
                 </div>
                 <div class="md:col-span-2">
@@ -247,8 +247,8 @@
                                 <div class="font-bold text-gray-700">{{ number_format($t['request']['size_bytes'] / 1024, 1) }} KB</div>
                             </div>
                             <div class="rounded-lg bg-gray-50 px-3 py-2">
-                                <div class="text-gray-400">fish_type</div>
-                                <div class="font-bold text-gray-700">{{ $t['request']['fish_type'] ?? '—' }}</div>
+                                <div class="text-gray-400">plant_type</div>
+                                <div class="font-bold text-gray-700">{{ $t['request']['plant_type'] ?? '—' }}</div>
                             </div>
                             <div class="rounded-lg bg-gray-50 px-3 py-2">
                                 <div class="text-gray-400">gradcam</div>

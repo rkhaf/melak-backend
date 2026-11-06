@@ -16,14 +16,14 @@ class DiseaseFactory extends Factory
     public function definition(): array
     {
         $name = fake()->unique()->randomElement([
-            'White Spot (Ich)',
-            'Aeromonas Hydrophila',
-            'Columnaris',
-            'Trichodina',
-            'Velvet (Oodinium)',
-            'Saprolegnia',
-            'Ichthyophthirius Mild',
-            'Kutu Air',
+            'Bercak Bakteri Tomat',
+            'Hawar Daun Jagung',
+            'Kapang Daun Tomat',
+            'Karat Daun Jagung',
+            'Busuk Daun Tomat',
+            'Bercak Daun Cabai',
+            'Tomat Sehat',
+            'Jagung Sehat',
         ]);
 
         return [

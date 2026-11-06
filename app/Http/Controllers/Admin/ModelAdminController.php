@@ -42,21 +42,21 @@ class ModelAdminController extends Controller
     {
         $data = $request->validate([
             'image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
-            'fish_type' => ['nullable', 'string', 'max:100'],
+            'plant_type' => ['nullable', 'string', 'max:100'],
         ], [
             'image.required' => 'Pilih foto yang akan dikirim ke service ML.',
             'image.file' => 'File tidak valid.',
             'image.image' => 'File harus berupa gambar.',
             'image.mimes' => 'Format gambar harus jpg, jpeg, png, atau webp.',
             'image.max' => 'Ukuran foto melebihi 10 MB (batas API.md §2.7).',
-            'fish_type.max' => 'Jenis ikan maksimal 100 karakter.',
+            'plant_type.max' => 'Jenis tanaman maksimal 100 karakter.',
         ]);
 
         $gradcam = $request->boolean('gradcam');
 
         $result = app(MlProbe::class)->predict(
             $request->file('image'),
-            $data['fish_type'] ?? null,
+            $data['plant_type'] ?? null,
             $gradcam,
         );
 
@@ -73,7 +73,7 @@ class ModelAdminController extends Controller
         return back()
             ->with('ml_test', $result)
             ->with('ml_test_input', [
-                'fish_type' => $data['fish_type'] ?? null,
+                'plant_type' => $data['plant_type'] ?? null,
                 'gradcam' => $gradcam,
             ]);
     }

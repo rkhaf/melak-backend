@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'avatar_url', 'username', 'email', 'password', 'phone', 'role', 'is_active', 'fcm_token', 'bio', 'province', 'fish_types', 'reputation_points', 'reputation_level', 'banned_at', 'ban_reason', 'ban_expires_at'])]
+#[Fillable(['name', 'avatar_url', 'username', 'email', 'password', 'phone', 'role', 'is_active', 'fcm_token', 'bio', 'province', 'plant_types', 'reputation_points', 'reputation_level', 'banned_at', 'ban_reason', 'ban_expires_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,7 +30,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'fish_types' => 'array',
+            'plant_types' => 'array',
             'banned_at' => 'datetime',
             'ban_expires_at' => 'datetime',
         ];
@@ -73,19 +73,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the fish ponds owned by the user.
+     * Get the plant gardens owned by the user.
      */
-    public function ponds(): HasMany
+    public function gardens(): HasMany
     {
-        return $this->hasMany(UserPond::class);
+        return $this->hasMany(UserGarden::class);
     }
 
     /**
-     * Get the fish disease scans created by the user.
+     * Get the plant disease scans created by the user.
      */
-    public function fishScans(): HasMany
+    public function plantScans(): HasMany
     {
-        return $this->hasMany(FishScan::class);
+        return $this->hasMany(PlantScan::class);
     }
 
     /**
