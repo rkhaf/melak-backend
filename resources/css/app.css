@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* ===================== Admin Sidebar ===================== */
+
+/* Base: off-canvas on mobile */
+.sidebar {
+    width: 16rem;
+    transform: translateX(-100%);
+    transition: width 0.25s ease, transform 0.3s ease;
+}
+.sidebar.mobile-open {
+    transform: translateX(0);
+}
+
+/* Desktop: static, collapsible */
+@media (min-width: 1024px) {
+    .sidebar {
+        transform: translateX(0);
+    }
+    body.sidebar-collapsed .sidebar {
+        width: 5rem;
+    }
+}
+
+/* Hide text/labels when collapsed */
+body.sidebar-collapsed .sidebar .sb-text,
+body.sidebar-collapsed .sidebar .sb-section,
+body.sidebar-collapsed .sidebar .sb-logo-text,
+body.sidebar-collapsed .sidebar .sb-profile-text {
+    display: none;
+}
+
+/* Center icon-only links when collapsed */
+body.sidebar-collapsed .sidebar .sb-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.sidebar-collapsed .sidebar .sb-link .sb-icon {
+    margin-right: 0;
+}
+
+/* Header & footer adjustments when collapsed */
+body.sidebar-collapsed .sidebar .sb-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.sidebar-collapsed .sidebar .sb-footer {
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+body.sidebar-collapsed .sidebar .sb-footer-logout {
+    display: none;
+}

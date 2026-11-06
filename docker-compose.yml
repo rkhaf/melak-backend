@@ -1,0 +1,34 @@
+services:
+  ngingu-be:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Nama & port harus sama dengan yang dipakai workflow (.github/workflows/deploy.yml)
+    # dan Cloudflare Tunnel (ngingu.duvi.asia -> http://localhost:8010).
+    container_name: ngingu-be
+    restart: always
+    ports:
+      # Loopback saja — akses publik lewat Cloudflare Tunnel, jangan 0.0.0.0.
+      - "127.0.0.1:8010:80"
+    volumes:
+      # Persist storage directory untuk uploads (foto laporan, avatar, APK)
+      - ./storage:/var/www/html/storage
+      # Mount environment file agar tidak hilang saat rebuild
+      - ./.env:/var/www/html/.env
+    networks:
+      - shared_network
+      # ML service (container ngingu-ml) berjalan di compose-nya sendiri; network
+      # ini wajib disertakan agar hostname ngingu-ml resolve dari backend.
+      - ml_network
+
+networks:
+  shared_network:
+    external: true
+    # DB_HOST=duvi-mysql ada di network ini.
+    name: duvi-network
+  ml_network:
+    external: true
+    # Network milik compose ml-service. Tanpa ini backend tidak bisa resolve
+    # hostname ngingu-ml — semua scan gagal instan tapi dilaporkan sebagai
+    # "prediksi melewati batas waktu" (504) yang menyesatkan.
+    name: ml-service_default
